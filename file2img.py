@@ -1,16 +1,16 @@
-import argparse
 import io
-import os
-from pathlib import Path
-from typing import List
 
-import cv2
 import numpy as np
+from PIL import Image
 import pydub
+from scipy.io import wavfile
 import torch
 import torchaudio
-from PIL import Image
-from scipy.io import wavfile
+import argparse
+from typing import List
+import os
+from pathlib import Path
+import cv2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", type=str, help="Input file to process, anything that FFMPEG supports, but wav and mp3 are recommended")
@@ -40,6 +40,7 @@ def spectrogram_image_from_wav(
     # Read WAV file from bytes
     sample_rate, waveform = wavfile.read(wav_bytes)
 
+    #sample_rate = 44100  # [Hz]
     clip_duration_ms = ms_duration  # [ms]
 
     bins_per_image = 512
@@ -75,7 +76,6 @@ def spectrogram_image_from_wav(
         power_for_image=power_for_image)
 
     return image
-
 
 def spectrogram_from_waveform(
     waveform: np.ndarray,
@@ -117,7 +117,6 @@ def spectrogram_from_waveform(
 
     return Sxx_mag
 
-
 def image_from_spectrogram(
         data: np.ndarray,
         max_volume: float = 50,
@@ -130,7 +129,6 @@ def image_from_spectrogram(
     data = cv2.normalize(data, None, 0, 255, cv2.NORM_MINMAX)
     image = Image.fromarray(data.astype(np.uint8))
     return image
-
 
 def spectrogram_images_from_file(
     filename: str, 
@@ -217,6 +215,7 @@ def spectrogram_images_from_file(
 
 # The filename is stored in the `filename` attribute of the `args` object
 filename = args.input
+output_dir = os.path.join("spectrograms", Path(args.input).stem)
 
 # Generate a list of spectrogram images from the MP3 file
 spectrogram_images = spectrogram_images_from_file(
@@ -227,13 +226,15 @@ spectrogram_images = spectrogram_images_from_file(
     duration=args.duration
     )
 
-os.makedirs(args.output, exist_ok=True)
+
+os.makedirs(output_dir, exist_ok=True)
 input_filename_only = Path(args.input).stem
 # Iterate over the list of images and save each one to a separate file
 print("SAVING SPECTOGRAM IMAGES")
 for i, image in enumerate(spectrogram_images):
     # Generate output filename for this image
-    output_filename = f"{args.output}/{input_filename_only}_{i:05d}.png"
-    image.save(output_filename)
+    output_filename = f"{input_filename_only}_{i:05d}.png"
+    output_full = Path(output_dir) / output_filename
+    image.save(output_full)
 
 print("FINISHED")

@@ -1,7 +1,8 @@
-numpy~=2.0.0
-pillow~=10.3.0
+Pillow~=9.5.0
+numpy~=1.23.5
 pydub~=0.25.1
-torch~=2.3.1
-torchaudio~=2.3.1
-scipy~=1.13.1
-opencv-python~=4.10.0.84
+torch~=2.1.2+cu118
+torchaudio~=2.1.2+cu118
+opencv-python~=4.9.0.80
+scipy~=1.11.1
+pathlib~=1.0.1
