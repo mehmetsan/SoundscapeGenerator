@@ -1,4 +1,5 @@
 import io
+import os.path
 import typing as T
 
 import numpy as np
@@ -8,6 +9,7 @@ from scipy.io import wavfile
 import torch
 import torchaudio
 import argparse
+from pathlib import Path
 
 def spectrogram_from_image(
         image: Image.Image,
@@ -148,6 +150,11 @@ args = parser.parse_args()
 
 # The filename is stored in the `filename` attribute of the `args` object
 filename = args.input
+input_filename_only = Path(args.input).stem
+output_path = os.path.join('reconstructed_audios', input_filename_only.split('_')[0])
+output_file = os.path.join(output_path, f"{input_filename_only}.mp3")
+os.makedirs(output_path, exist_ok=True)
+
 image = Image.open(filename)
 wav_bytes, duration_s = wav_bytes_from_spectrogram_image(image, duration=int(args.duration), nmels=int(args.nmels), maxvol=int(args.maxvol), power_for_image=float(args.powerforimage))
-write_bytesio_to_file(args.output, wav_bytes)
+write_bytesio_to_file(output_file, wav_bytes)

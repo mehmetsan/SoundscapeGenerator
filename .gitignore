@@ -1,6 +1,7 @@
 # Folder Paths
 /audio_samples/
 /spectrograms/
+/reconstructed_audios/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
