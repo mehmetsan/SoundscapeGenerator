@@ -13,12 +13,15 @@ from pathlib import Path
 import cv2
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--input", type=str, help="Input file to process, anything that FFMPEG supports, but wav and mp3 are recommended")
+parser.add_argument("-i", "--input", type=str,
+                    help="Input file to process, anything that FFMPEG supports, but wav and mp3 are recommended")
 parser.add_argument("-o", "--output", type=str, default="output", help="Output Folder")
 parser.add_argument("-m", "--maxvol", type=int, default=100, help="Max Volume, 255 for identical results")
 parser.add_argument("-p", "--powerforimage", type=float, default=0.25, help="Power for Image")
-parser.add_argument("-n", "--nmels", type=int, default=512, help="n_mels to use for Image, basically HEIGHT. Higher = more fidelity")
+parser.add_argument("-n", "--nmels", type=int, default=512,
+                    help="n_mels to use for Image, basically HEIGHT. Higher = more fidelity")
 parser.add_argument("-d", "--duration", type=int, default=5119, help="Duration of each chunk")
+parser.add_argument("-c", "--color", type=str, default="bw", help="Color schema, rgb or bw")
 args = parser.parse_args()
 # int and float checks
 args.input = str(args.input)
@@ -27,13 +30,15 @@ args.maxvol = int(args.maxvol)
 args.powerforimage = float(args.powerforimage)
 args.nmels = int(args.nmels)
 args.duration = int(args.duration)
+args.color = str(args.color)
+
 
 def spectrogram_image_from_wav(
-    wav_bytes: io.BytesIO, 
-    max_volume: float = 50, 
-    power_for_image: float = 0.25, 
-    ms_duration: int = 5119,
-    nmels: int = 512) -> Image.Image:
+        wav_bytes: io.BytesIO,
+        max_volume: float = 50,
+        power_for_image: float = 0.25,
+        ms_duration: int = 5119,
+        nmels: int = 512) -> Image.Image:
     """
     Generate a spectrogram image from a WAV file.
     """
@@ -71,20 +76,21 @@ def spectrogram_image_from_wav(
 
     # Convert spectrogram to image
     image = image_from_spectrogram(
-        Sxx, 
-        max_volume=max_volume, 
+        Sxx,
+        max_volume=max_volume,
         power_for_image=power_for_image)
 
     return image
 
+
 def spectrogram_from_waveform(
-    waveform: np.ndarray,
-    sample_rate: int,
-    n_fft: int,
-    hop_length: int,
-    win_length: int,
-    mel_scale: bool = True,
-    n_mels: int = 512,
+        waveform: np.ndarray,
+        sample_rate: int,
+        n_fft: int,
+        hop_length: int,
+        win_length: int,
+        mel_scale: bool = True,
+        n_mels: int = 512,
 ) -> np.ndarray:
     """
     Compute a spectrogram from a waveform.
@@ -117,6 +123,7 @@ def spectrogram_from_waveform(
 
     return Sxx_mag
 
+
 def image_from_spectrogram(
         data: np.ndarray,
         max_volume: float = 50,
@@ -130,13 +137,14 @@ def image_from_spectrogram(
     image = Image.fromarray(data.astype(np.uint8))
     return image
 
+
 def spectrogram_images_from_file(
-    filename: str, 
-    max_volume: float = 50, 
-    power_for_image: float = 0.25, 
-    nmels: int = 512, 
-    duration: int = 5119
-        ) -> List[Image.Image]:
+        filename: str,
+        max_volume: float = 50,
+        power_for_image: float = 0.25,
+        nmels: int = 512,
+        duration: int = 5000
+) -> List[Image.Image]:
     """
     Generate a list of spectrogram images from an MP3 file.
     """
@@ -159,7 +167,7 @@ def spectrogram_images_from_file(
     for i in range(interval_count):
         print("PROCESSED:", i, "/", interval_count)
         # Extract 5 second interval of audio data
-        interval_audio = audio[i*duration:(i+1)*duration]
+        interval_audio = audio[i * duration:(i + 1) * duration]
 
         # Convert to WAV and save as BytesIO object
         wav_bytes = io.BytesIO()
@@ -168,8 +176,8 @@ def spectrogram_images_from_file(
 
         # Generate spectrogram image from WAV file
         spectrogram_image = spectrogram_image_from_wav(
-            wav_bytes, 
-            max_volume=max_volume, 
+            wav_bytes,
+            max_volume=max_volume,
             power_for_image=power_for_image,
             ms_duration=duration,
             nmels=nmels)
@@ -186,11 +194,11 @@ def spectrogram_images_from_file(
 
         # Calculate amount of silent audio to add and combine
         add_ms = duration - leftover_seconds
-        print("ON THE LAST CHUNK,", add_ms,"ms WILL BE SILENT")
+        print("ON THE LAST CHUNK,", add_ms, "ms WILL BE SILENT")
         silence = pydub.AudioSegment.silent(
             duration=add_ms,
             frame_rate=44100
-            )
+        )
 
         combined_segment = interval_audio + silence
 
@@ -201,8 +209,8 @@ def spectrogram_images_from_file(
 
         # Generate spectrogram image from WAV file
         spectrogram_image = spectrogram_image_from_wav(
-            wav_bytes, 
-            max_volume=max_volume, 
+            wav_bytes,
+            max_volume=max_volume,
             power_for_image=power_for_image,
             ms_duration=duration,
             nmels=nmels)
@@ -213,28 +221,32 @@ def spectrogram_images_from_file(
     return spectrogram_images
 
 
-# The filename is stored in the `filename` attribute of the `args` object
-filename = args.input
-output_dir = os.path.join("spectrograms", Path(args.input).stem)
-
 # Generate a list of spectrogram images from the MP3 file
 spectrogram_images = spectrogram_images_from_file(
-    filename=filename,
+    filename=args.input,
     max_volume=args.maxvol,
     power_for_image=args.powerforimage,
     nmels=args.nmels,
     duration=args.duration
-    )
+)
 
+# The filename is stored in the `filename` attribute of the `args` object
+filename = args.input
+color_type_name = "rgb" if args.color == "rgb" else "bw"
+folder_name = f"{Path(args.input).stem}_{color_type_name}"
+output_dir = os.path.join("spectrograms", folder_name)
 
 os.makedirs(output_dir, exist_ok=True)
 input_filename_only = Path(args.input).stem
 # Iterate over the list of images and save each one to a separate file
 print("SAVING SPECTOGRAM IMAGES")
 for i, image in enumerate(spectrogram_images):
+    if args.color == 'rgb':
+        image = image.convert('RGB')
     # Generate output filename for this image
     output_filename = f"{input_filename_only}_{i:05d}.png"
     output_full = Path(output_dir) / output_filename
+
     image.save(output_full)
 
 print("FINISHED")
