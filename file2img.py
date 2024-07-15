@@ -1,16 +1,16 @@
-import io
-
-import numpy as np
-from PIL import Image
-import pydub
-from scipy.io import wavfile
-import torch
-import torchaudio
 import argparse
-from typing import List
+import io
 import os
 from pathlib import Path
+from typing import List
+
 import cv2
+import numpy as np
+import pydub
+import torch
+import torchaudio
+from PIL import Image
+from scipy.io import wavfile
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", type=str,
@@ -158,14 +158,11 @@ def spectrogram_images_from_file(
     # Calculate the number of 5 second intervals in the audio
     interval_count = len(audio) // duration
 
-    print("CHUNKS TO PROCESS:", interval_count)
-
     # Initialize list to store spectrogram images
     spectrogram_images = []
 
     # Iterate over intervals and generate spectrogram images
     for i in range(interval_count):
-        print("PROCESSED:", i, "/", interval_count)
         # Extract 5 second interval of audio data
         interval_audio = audio[i * duration:(i + 1) * duration]
 
@@ -185,68 +182,31 @@ def spectrogram_images_from_file(
         # Add image to list
         spectrogram_images.append(spectrogram_image)
 
-    # Check if there are any leftover seconds that are not a multiple of 5
-    leftover_seconds = len(audio) % duration
-    if leftover_seconds > 0:
-        print("PROCESSING LEFTOVER CHUNK")
-        # Extract the leftover interval of audio data
-        interval_audio = audio[-leftover_seconds:]
-
-        # Calculate amount of silent audio to add and combine
-        add_ms = duration - leftover_seconds
-        print("ON THE LAST CHUNK,", add_ms, "ms WILL BE SILENT")
-        silence = pydub.AudioSegment.silent(
-            duration=add_ms,
-            frame_rate=44100
-        )
-
-        combined_segment = interval_audio + silence
-
-        # Convert to WAV and save as BytesIO object
-        wav_bytes = io.BytesIO()
-        combined_segment.export(wav_bytes, format="wav")
-        wav_bytes.seek(0)
-
-        # Generate spectrogram image from WAV file
-        spectrogram_image = spectrogram_image_from_wav(
-            wav_bytes,
-            max_volume=max_volume,
-            power_for_image=power_for_image,
-            ms_duration=duration,
-            nmels=nmels)
-
-        # Add image to list
-        spectrogram_images.append(spectrogram_image)
-
     return spectrogram_images
 
 
-# Generate a list of spectrogram images from the MP3 file
-spectrogram_images = spectrogram_images_from_file(
-    filename=args.input,
-    max_volume=args.maxvol,
-    power_for_image=args.powerforimage,
-    nmels=args.nmels,
-    duration=args.duration
-)
+def convert_song(file_path):
+    spectrogram_images = spectrogram_images_from_file(filename=file_path)
 
-# The filename is stored in the `filename` attribute of the `args` object
-filename = args.input
-color_type_name = "rgb" if args.color == "rgb" else "bw"
-folder_name = f"{Path(args.input).stem}_{color_type_name}"
-output_dir = os.path.join("spectrograms", folder_name)
+    filename = Path(file_path).stem
+    output_dir = os.path.join("spectrograms", filename)
+    os.makedirs(output_dir, exist_ok=True)
+    input_filename_only = Path(file_path).stem
 
-os.makedirs(output_dir, exist_ok=True)
-input_filename_only = Path(args.input).stem
-# Iterate over the list of images and save each one to a separate file
-print("SAVING SPECTOGRAM IMAGES")
-for i, image in enumerate(spectrogram_images):
-    if args.color == 'rgb':
-        image = image.convert('RGB')
-    # Generate output filename for this image
-    output_filename = f"{input_filename_only}_{i:05d}.png"
-    output_full = Path(output_dir) / output_filename
+    # Iterate over the list of images and save each one to a separate file
+    for i, image in enumerate(spectrogram_images[3:]):
+        # Generate output filename for this image
+        output_filename = f"{input_filename_only}_{i}.png"
+        output_full = Path(output_dir) / output_filename
+        image.save(output_full)
 
-    image.save(output_full)
+    return output_dir
 
-print("FINISHED")
+def convert_songs_in_path(path: str):
+    path_list = Path(path).glob('*.mp3')
+    for path in path_list:
+        convert_song(file_path=path)
+        print(f"Finished converting song {Path(path).stem}")
+
+
+#convert_song('/Users/mehmetsanisoglu/Desktop/thesis_data/MEMD_audio/2.mp3')

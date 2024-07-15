@@ -7,8 +7,9 @@
       <excludeFolder url="file://$MODULE_DIR$/audio_samples/boris" />
       <excludeFolder url="file://$MODULE_DIR$/reconstructed_audios" />
       <excludeFolder url="file://$MODULE_DIR$/spectrograms" />
+      <excludeFolder url="file://$MODULE_DIR$/deam_data" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.11 (SoundscapeGenerator) (2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="SoundscapeGenerator" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

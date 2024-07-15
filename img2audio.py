@@ -3,13 +3,12 @@ import os.path
 import typing as T
 
 import numpy as np
-from PIL import Image
-import pydub
-from scipy.io import wavfile
 import torch
 import torchaudio
-import argparse
+from PIL import Image
 from pathlib import Path
+from scipy.io import wavfile
+
 
 def spectrogram_from_image(
         image: Image.Image,
@@ -34,6 +33,7 @@ def spectrogram_from_image(
     # Reverse the power curve
     data = np.power(data, 1 / power_for_image)
     return data
+
 
 def waveform_from_spectrogram(
     Sxx: np.ndarray,
@@ -82,6 +82,7 @@ def waveform_from_spectrogram(
 
     return waveform
 
+
 def wav_bytes_from_spectrogram_image(image: Image.Image, duration: int, nmels: int, maxvol: int, power_for_image: float) -> T.Tuple[io.BytesIO, float]:
     """
     Reconstruct a WAV audio clip from a spectrogram image. Also returns the duration in seconds.
@@ -129,6 +130,7 @@ def wav_bytes_from_spectrogram_image(image: Image.Image, duration: int, nmels: i
 
     return wav_bytes, duration_s
 
+
 def write_bytesio_to_file(filename, bytesio):
     """
     Write the contents of the given BytesIO to a file.
@@ -139,22 +141,23 @@ def write_bytesio_to_file(filename, bytesio):
         # Copy the BytesIO stream to the output file
         outfile.write(bytesio.getbuffer())
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--input", help="Input file to process, anything that FFMPEG supports, but wav and mp3 are recommended")
-parser.add_argument("-o", "--output", help="Output Image")
-parser.add_argument("-d", "--duration", default=5119, help="Image duration")
-parser.add_argument("-m", "--maxvol", default=100, help="Max Volume, 255 for identical results")
-parser.add_argument("-p", "--powerforimage", default=0.25, help="Power for Image")
-parser.add_argument("-n", "--nmels", default=512, help="n_mels to use for Image, basically width. Higher = more fidelity")
-args = parser.parse_args()
 
-# The filename is stored in the `filename` attribute of the `args` object
-filename = args.input
-input_filename_only = Path(args.input).stem
-output_path = os.path.join('reconstructed_audios', input_filename_only.split('_')[0])
-output_file = os.path.join(output_path, f"{input_filename_only}.mp3")
-os.makedirs(output_path, exist_ok=True)
+def convert_song(file_path: str):
+    image = Image.open(file_path)
+    input_filename_only = Path(file_path).stem
+    output_path = os.path.join('spectrograms', input_filename_only)
+    output_file = os.path.join(output_path, f"{input_filename_only}.mp3")
 
-image = Image.open(filename)
-wav_bytes, duration_s = wav_bytes_from_spectrogram_image(image, duration=int(args.duration), nmels=int(args.nmels), maxvol=int(args.maxvol), power_for_image=float(args.powerforimage))
-write_bytesio_to_file(output_file, wav_bytes)
+    os.makedirs(output_path, exist_ok=True)
+
+    wav_bytes, _ = wav_bytes_from_spectrogram_image(
+        image,
+        duration=5119,
+        nmels=512,
+        maxvol=100,
+        power_for_image=0.25)
+    write_bytesio_to_file(output_file, wav_bytes)
+
+song_path = '/Users/mehmetsanisoglu/Desktop/thesis_data/MEMD_audio'
+
+convert_song('/Users/mehmetsanisoglu/Desktop/thesis_data/MEMD_audio/2.mp3')
