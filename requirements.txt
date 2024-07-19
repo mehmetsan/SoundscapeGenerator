@@ -1,8 +1,10 @@
-Pillow
-numpy
-pydub
+Pillow~=10.3.0
+numpy~=1.26.4
+pydub~=0.25.1
 torch
-torchaudio
+torchaudio~=2.3.1
 opencv-python
 scipy~=1.11.1
 pathlib~=1.0.1
+wget~=3.2
+pandas~=2.2.2
