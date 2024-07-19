@@ -1,5 +1,7 @@
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
+
 from file2img import convert_song
 
 """
@@ -9,11 +11,14 @@ from file2img import convert_song
 """
 
 # Paths to the datasets
-arousal = pd.read_csv('deam_data/annotations/annotations averaged per song/dynamic/arousal.csv')
-valence = pd.read_csv('deam_data/annotations/annotations averaged per song/dynamic/valence.csv')
+arousal = pd.read_csv('./deam_data/annotations/annotations averaged per song/dynamic/arousal.csv')
+valence = pd.read_csv('./deam_data/annotations/annotations averaged per song/dynamic/valence.csv')
+song_level_annotations_path = './deam_data/annotations/annotations averaged per song/song_level/'
+averaged_2000 = pd.read_csv(f"{song_level_annotations_path}/static_annotations_averaged_songs_1_2000.csv")
+averaged_2058 = pd.read_csv(f"{song_level_annotations_path}/static_annotations_averaged_songs_2000_2058.csv")
 
 # Insert the path to the songs here
-songs_path = '/Users/mehmetsanisoglu/Desktop/thesis_data/MEMD_audio'
+songs_path = './deam_data/MEMD_audio'
 
 columns = ["song_id", "spectrogram_id", "valence", "arousal"]
 df = pd.DataFrame(columns=columns)

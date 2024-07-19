@@ -2,6 +2,13 @@ import os
 import wget
 import zipfile
 
+"""
+    A script that downloads, extracts and deletes the required zip files
+    In this project DEAM dataset is used to create the combined training 
+    dataset of spectrograms and their valence arousal scores
+"""
+
+
 # URLS for the DEAM dataset
 base_url = 'http://cvml.unige.ch/databases/DEAM'
 audio_url = f"{base_url}/DEAM_audio.zip"
