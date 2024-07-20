@@ -3,12 +3,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from file2img import convert_song
-
 """
     A script that combines the generated spectrograms and their 
     averaged valence-arousal scores in the same dataset
-    Provide the paths to the DEAM dataset below here
 """
 
 song_level_annotations_path = 'deam_data/annotations/annotations averaged per song/song_level/'
@@ -17,7 +14,6 @@ paths = {
     'valence': './deam_data/annotations/annotations averaged per song/dynamic (per second annotations)/valence.csv',
     'averaged_2000': f"{song_level_annotations_path}/static_annotations_averaged_songs_1_2000.csv",
     'averaged_2058': f"{song_level_annotations_path}/static_annotations_averaged_songs_2000_2058.csv",
-    'combined_file_path': './averaged_combined.csv'
 }
 
 arousal = pd.read_csv(paths['arousal'])

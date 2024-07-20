@@ -4,6 +4,11 @@ from pathlib import Path
 
 from file2img import convert_song
 
+"""
+    A script to generate the spectrogram files using the 
+    downloaded mp3 files from the DEAM Dataset 
+"""
+
 songs_path = './deam_data/MEMD_audio'
 
 if not os.path.exists(songs_path):
