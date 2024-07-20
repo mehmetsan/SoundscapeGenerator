@@ -185,27 +185,31 @@ def spectrogram_images_from_file(
     return spectrogram_images
 
 
-def convert_song(file_path):
-    spectrogram_images = spectrogram_images_from_file(filename=file_path)
+def convert_song(song_path):
+    song_name = Path(song_path).stem
+    output_dir = os.path.join('spectrograms', song_name)
 
-    filename = Path(file_path).stem
-    output_dir = os.path.join("spectrograms", filename)
+    # If the spectrograms already exist
+    if os.path.exists(output_dir):
+        return None
+
+    spectrogram_images = spectrogram_images_from_file(filename=song_path)
+
     os.makedirs(output_dir, exist_ok=True)
-    input_filename_only = Path(file_path).stem
-
     # Iterate over the list of images and save each one to a separate file
     for i, image in enumerate(spectrogram_images[3:]):
         # Generate output filename for this image
-        output_filename = f"{input_filename_only}_{i}.png"
+        output_filename = f"{song_name}_{i}.png"
         output_full = Path(output_dir) / output_filename
         image.save(output_full)
 
     return output_dir
 
+
 def convert_songs_in_path(path: str):
     path_list = Path(path).glob('*.mp3')
     for path in path_list:
-        convert_song(file_path=path)
+        convert_song(song_path=path)
         print(f"Finished converting song {Path(path).stem}")
 
 
