@@ -13,7 +13,7 @@ paths = {
     'arousal': './deam_data/annotations/annotations averaged per song/dynamic (per second annotations)/arousal.csv',
     'valence': './deam_data/annotations/annotations averaged per song/dynamic (per second annotations)/valence.csv',
     'averaged_2000': f"{song_level_annotations_path}/static_annotations_averaged_songs_1_2000.csv",
-    'averaged_2058': f"{song_level_annotations_path}/static_annotations_averaged_songs_2000_2058.csv",
+    'result': './result.csv'
 }
 
 arousal = pd.read_csv(paths['arousal'])
@@ -21,10 +21,7 @@ valence = pd.read_csv(paths['valence'])
 
 # Dataframes
 averaged_2000 = pd.read_csv(paths['averaged_2000'])
-averaged_2058 = pd.read_csv(paths['averaged_2058'])
-averaged_combined = pd.concat([averaged_2000, averaged_2058])
-
-averaged_combined.columns = averaged_combined.columns.str.replace(' ', '')
+averaged_2000.columns = averaged_2000.columns.str.replace(' ', '')
 
 columns = ['song_id', 'spectrogram_id', 'valence', 'arousal', 'song_arousal_std', 'song_valence_std']
 df = pd.DataFrame(columns=columns)
@@ -34,12 +31,15 @@ if not os.path.exists('./spectrograms'):
     print('Spectrograms data missing, use the create_spectrograms.py script first to generate the spectrograms')
 
 else:
-    sorted_folders = sorted(
+    if os.path.exists(paths['result']):
+        os.remove(paths['result'])
+
+    sorted_spectrogram_folders = sorted(
         (folder for folder in Path('./spectrograms').iterdir() if folder.is_dir()),
         key=lambda x: int(x.stem)
     )
 
-    for song_index, song_folder in enumerate(sorted_folders):
+    for song_index, song_folder in enumerate(sorted_spectrogram_folders):
 
         if song_folder.is_dir():
             song_id = song_folder.stem
@@ -60,8 +60,8 @@ else:
                     'spectrogram_id': spec_index,
                     'arousal': spectrogram_arousal,
                     'valence': spectrogram_valence,
-                    'song_arousal_std': averaged_combined.iloc[song_index]['arousal_std'],
-                    'song_valence_std': averaged_combined.iloc[song_index]['valence_std']
+                    'song_arousal_std': averaged_2000.iloc[song_index]['arousal_std'],
+                    'song_valence_std': averaged_2000.iloc[song_index]['valence_std']
                 }
                 df_data.append(new_row)
 
