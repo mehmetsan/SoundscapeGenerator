@@ -8,6 +8,40 @@ import pandas as pd
     averaged valence-arousal scores in the same dataset
 """
 
+
+def assign_emotions(valence_score, arousal_score):
+    if valence_score == 0:
+        return ''
+
+    slope = arousal_score / valence_score
+    if valence_score > 0:
+        if slope > 0.66:
+            return 'excited'
+        elif slope > 0.33:
+            return 'delighted'
+        elif slope > 0:
+            return 'happy'
+        elif slope > -0.33:
+            return 'content'
+        elif slope > -0.66:
+            return 'relaxed'
+        else:
+            return 'calm'
+    else:
+        if slope > 0.66:
+            return 'tired'
+        elif slope > 0.33:
+            return 'bored'
+        elif slope > 0:
+            return 'depressed'
+        elif slope > -0.33:
+            return 'frustrated'
+        elif slope > -0.66:
+            return 'angry'
+        else:
+            return 'tense'
+
+
 song_level_annotations_path = 'deam_data/annotations/annotations averaged per song/song_level/'
 paths = {
     'arousal': './deam_data/annotations/annotations averaged per song/dynamic (per second annotations)/arousal.csv',
@@ -23,7 +57,7 @@ valence = pd.read_csv(paths['valence'])
 averaged_2000 = pd.read_csv(paths['averaged_2000'])
 averaged_2000.columns = averaged_2000.columns.str.replace(' ', '')
 
-columns = ['song_id', 'spectrogram_id', 'valence', 'arousal', 'song_arousal_std', 'song_valence_std']
+columns = ['song_id', 'spectrogram_id', 'valence', 'arousal', 'song_arousal_std', 'song_valence_std', 'emotion']
 df = pd.DataFrame(columns=columns)
 df_data = []
 
@@ -61,11 +95,11 @@ else:
                     'arousal': spectrogram_arousal,
                     'valence': spectrogram_valence,
                     'song_arousal_std': averaged_2000.iloc[song_index]['arousal_std'],
-                    'song_valence_std': averaged_2000.iloc[song_index]['valence_std']
+                    'song_valence_std': averaged_2000.iloc[song_index]['valence_std'],
+                    'emotion': assign_emotions(valence_score=spectrogram_valence, arousal_score=spectrogram_arousal)
                 }
                 df_data.append(new_row)
 
-
+# Save the dataset
 df = pd.DataFrame(data=df_data, columns=columns)
 df.to_csv('result.csv', index=False)
-

@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
+
 if not os.path.exists('./result.csv'):
     print('Result dataset is missing, run the prepare_dataset.py script first to generate the dataset')
 
@@ -27,12 +28,13 @@ else:
     labels = kmeans.labels_
 
     # Add the cluster labels to the DataFrame
-    coordinates['Cluster'] = labels
+    coordinates['cluster'] = labels
 
     # Plot the clusters
-    plt.scatter(coordinates['valence'], coordinates['arousal'], c=coordinates['Cluster'], cmap='viridis')
+    plt.scatter(coordinates['valence'], coordinates['arousal'], c=coordinates['cluster'], cmap='viridis')
     plt.xlabel('Valence')
     plt.ylabel('Arousal')
     plt.title('Emotions Clustering')
+    plt.savefig('./resources/emotion_clusters.png')
     plt.show()
-
+    plt.close()
