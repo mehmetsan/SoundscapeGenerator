@@ -103,3 +103,4 @@ else:
 # Save the dataset
 df = pd.DataFrame(data=df_data, columns=columns)
 df.to_csv('result.csv', index=False)
+print('Dataset created successfully')

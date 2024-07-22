@@ -38,3 +38,5 @@ else:
     plt.savefig('./resources/emotion_clusters.png')
     plt.show()
     plt.close()
+
+    print('Finished clustering with K-means, find the created chart at ./resources')
