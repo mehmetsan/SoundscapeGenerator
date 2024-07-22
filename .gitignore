@@ -3,6 +3,9 @@
 /spectrograms/
 /reconstructed_audios/
 /deam_data
+/categorized_spectrograms/
+/.idea/
+
 
 /result.csv
 
