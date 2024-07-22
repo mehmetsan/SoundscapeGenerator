@@ -6,28 +6,28 @@ A project to use Stable Diffusion to generate soundscapes with emotion tags as i
   - https://docs.anaconda.com/miniconda/miniconda-install/
 - Create a conda virtual environment
   - `conda create -n myenv python=3.9`
-- Activate the environment
-  - `conda activate myenv`
-- Deactivate the environment
-  - `conda deactivate myenv`
+- Activate/Deactivate the environment
+  - `activate myenv`
+  - `deactivate myenv`
+- Add the following channels to the conda to look for the packages
+  - `conda config --env --add channels conda-forge`
+  - `conda config --env --add channels anaconda`
 - Install the dependencies:
   - `conda install --yes --file requirements.txt`
 - Visit https://pytorch.org/ and formulate your conda command based on your OS, such as:
-  - `conda install pytorch::pytorch torchvision torchaudio -c pytorch`
-- Install open-cv separately
-  - `conda install opencv`
-
+  - OSX: `conda install pytorch::pytorch torchvision torchaudio -c pytorch`
+  - Windows (check your CUDA version): `conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia`
 # Setup
 - To begin with activate your env and run the script preparation.py to download the required DEAM dataset.
-  - `python3 preparation.py`
+  - `python preparation.py`
 - Create the spectrograms
-  - `python3 create_spectrograms.py`
+  - `python create_spectrograms.py`
 - Prepare the dataset
-  - `python3 prepare_dataset.py`
+  - `python prepare_dataset.py`
 - Categorize the spectrograms based on their emotion classes
-  - `python3 categorize_spectrograms.py`
+  - `python categorize_spectrograms.py`
 - (Optional) If you want to generate K-means clustering map
-  - `python3 cluster_emotions.py`
+  - `python cluster_emotions.py`
 ## References
 
 - Used the helper functions from, great help:

@@ -3,7 +3,8 @@ numpy
 pydub
 scipy
 pathlib
-wget
+pywget
+opencv
 pandas
 matplotlib
 scikit-learn
