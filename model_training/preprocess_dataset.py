@@ -11,7 +11,7 @@ if not os.path.exists('../categorized_spectrograms'):
     print('Categorized spectrograms are missing, run the categorize_spectrograms.py script first')
 else:
     dataset = CustomImageDataset(root_dir='../categorized_spectrograms')
-    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
 
     # Load the checkpoint
     os.makedirs('../checkpoints/caches', exist_ok=True)
@@ -28,9 +28,9 @@ else:
     text_encoder.to(device)
 
     # Training settings
-    num_epochs = 5
+    num_epochs = 1
     learning_rate = 1e-4
-    scheduler = DDPMScheduler(beta_start=0.0001, beta_end=0.02, num_train_timesteps=1000)
+    scheduler = DDPMScheduler(beta_start=0.0001, beta_end=0.02, num_train_timesteps=500)
     optimizer = AdamW(model.parameters(), lr=learning_rate)
 
     # Training loop

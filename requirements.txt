@@ -13,3 +13,4 @@ torchvision
 diffusers
 torchaudio
 wget
+transformers
