@@ -13,9 +13,11 @@
 # description: Slurm job to train the riffusion model with emotion tags
 # author: Mehmet Sanisoglu
 
-# cd $WORKING_DIR
+WORKDIR=/home/sanisoglum/SoundscapeGenerator
+cd $WORKING_DIR
+
 export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 srun ~/miniconda3/bin/conda run \
-    -n gan \
+    -n myenv \
     python -m ./preparation.py
