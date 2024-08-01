@@ -23,3 +23,4 @@ export CUDA_LAUNCH_BLOCKING=1
 
 
 srun python preparation.py
+srun python create_spectrograms.py
