@@ -22,4 +22,4 @@ export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
 
-srun python -m preparation.py
+srun python preparation.py
