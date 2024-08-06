@@ -9,8 +9,6 @@ pandas
 matplotlib
 scikit-learn
 datasets
-torchvision
 diffusers
-torchaudio
 wget
 transformers
