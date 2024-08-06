@@ -13,7 +13,7 @@
 # description: Slurm job to train the riffusion model with emotion tags
 # author: Mehmet Sanisoglu
 
-source /home/sanisoglum/miniconda3/bin/activate my_env
+source /home/sanisoglum/miniconda3/bin/activate riffusion
 
 WORKDIR=/home/sanisoglum/SoundscapeGenerator
 cd "$WORKDIR" || exit 0  # Create and change to the specified directory
@@ -21,7 +21,5 @@ cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
-#nvcc --version
-srun python testing.py
-#srun python preparation.py
-#srun python create_spectrograms.py
+srun python preparation.py
+srun python create_spectrograms.py
