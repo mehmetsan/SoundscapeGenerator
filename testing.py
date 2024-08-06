@@ -1,6 +1,6 @@
 import torch
-
-torch.cuda.is_available()
+print("Is cuda available?")
+print("Yes" if torch.cuda.is_available() else "No")
 
 torch.cuda.device_count()
 
