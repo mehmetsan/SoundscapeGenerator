@@ -23,3 +23,6 @@ export CUDA_LAUNCH_BLOCKING=1
 
 srun python preparation.py
 srun python create_spectrograms.py
+srun python prepare_dataset.py
+srun python categorize_spectrograms.py
+srun python ./model_training/train_model.py
