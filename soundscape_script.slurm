@@ -13,7 +13,7 @@
 # description: Slurm job to train the riffusion model with emotion tags
 # author: Mehmet Sanisoglu
 
-source /home/sanisoglum/miniconda3/bin/activate riffusion
+source /home/sanisoglum/miniconda3/bin/activate my_env
 
 WORKDIR=/home/sanisoglum/SoundscapeGenerator
 cd "$WORKDIR" || exit 0  # Create and change to the specified directory
