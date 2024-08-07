@@ -9,4 +9,4 @@
 #SBATCH --mem 5G
 #SBATCH --gres=gpu:rtx
 
-srun ~/miniconda3/bin/conda run -n riffusion python testing.py
+srun ~/miniconda3/bin/conda run -n my_env python testing.py
