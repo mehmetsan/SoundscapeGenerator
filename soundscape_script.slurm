@@ -15,16 +15,14 @@
 
 source /home/sanisoglum/miniconda3/bin/activate my_env
 
-srun conda install conda-forge::transformers
+WORKDIR=/home/sanisoglum/SoundscapeGenerator
+cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 
-#WORKDIR=/home/sanisoglum/SoundscapeGenerator
-#cd "$WORKDIR" || exit 0  # Create and change to the specified directory
+export HYDRA_FULL_ERROR=1
+export CUDA_LAUNCH_BLOCKING=1
 
-#export HYDRA_FULL_ERROR=1
-#export CUDA_LAUNCH_BLOCKING=1
-
-#srun python preparation.py
-#srun python create_spectrograms.py
-#srun python prepare_dataset.py
-#srun python categorize_spectrograms.py
-#srun python train_model.py
+srun python preparation.py
+srun python create_spectrograms.py
+srun python prepare_dataset.py
+srun python categorize_spectrograms.py
+srun python train_model.py
