@@ -2,7 +2,7 @@ import os
 
 from pathlib import Path
 
-from file2img import convert_song
+from utils.file2img import convert_song
 
 """
     A script to generate the spectrogram files using the downloaded mp3 files 

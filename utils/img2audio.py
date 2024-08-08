@@ -145,7 +145,7 @@ def write_bytesio_to_file(filename, bytesio):
 def convert_song(file_path: str):
     image = Image.open(file_path)
     input_filename_only = Path(file_path).stem
-    output_path = os.path.join('spectrograms', input_filename_only)
+    output_path = os.path.join('../spectrograms', input_filename_only)
     output_file = os.path.join(output_path, f"{input_filename_only}.mp3")
 
     os.makedirs(output_path, exist_ok=True)

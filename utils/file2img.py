@@ -187,7 +187,7 @@ def spectrogram_images_from_file(
 
 def convert_song(song_path):
     song_name = Path(song_path).stem
-    output_dir = os.path.join('spectrograms', song_name)
+    output_dir = os.path.join('../spectrograms', song_name)
 
     # If the spectrograms already exist
     if os.path.exists(output_dir):

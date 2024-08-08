@@ -5,17 +5,17 @@ from diffusers import StableDiffusionPipeline, DDPMScheduler
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 
-from utils import CustomImageDataset
+from utils.training_utils import CustomImageDataset
 
-if not os.path.exists('../categorized_spectrograms'):
+if not os.path.exists('categorized_spectrograms'):
     print('Categorized spectrograms are missing, run the categorize_spectrograms.py script first')
 else:
-    dataset = CustomImageDataset(root_dir='../categorized_spectrograms')
+    dataset = CustomImageDataset(root_dir='categorized_spectrograms')
     dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
 
     # Load the checkpoint
-    os.makedirs('../checkpoints/caches', exist_ok=True)
-    pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1", cache_dir='../checkpoints/caches')
+    os.makedirs('checkpoints/caches', exist_ok=True)
+    pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1", cache_dir='checkpoints/caches')
 
     # Extract model components
     model = pipeline.unet
