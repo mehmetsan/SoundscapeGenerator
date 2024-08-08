@@ -42,7 +42,7 @@ def assign_emotions(valence_score, arousal_score):
             return 'tense'
 
 
-song_level_annotations_path = 'deam_data/annotations/annotations averaged per song/song_level/'
+song_level_annotations_path = './deam_data/annotations/annotations averaged per song/song_level/'
 paths = {
     'arousal': './deam_data/annotations/annotations averaged per song/dynamic (per second annotations)/arousal.csv',
     'valence': './deam_data/annotations/annotations averaged per song/dynamic (per second annotations)/valence.csv',
