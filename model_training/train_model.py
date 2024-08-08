@@ -5,7 +5,7 @@ from diffusers import StableDiffusionPipeline, DDPMScheduler
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 
-from model_training.utils import CustomImageDataset
+from utils import CustomImageDataset
 
 if not os.path.exists('../categorized_spectrograms'):
     print('Categorized spectrograms are missing, run the categorize_spectrograms.py script first')
