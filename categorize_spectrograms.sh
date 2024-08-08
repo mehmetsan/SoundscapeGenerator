@@ -10,7 +10,7 @@
 #SBATCH --mem 16G
 #SBATCH --gres=gpu:rtx
 
-# description: Slurm job to train the riffusion model with emotion tags
+# description: Slurm job to generate and categorize the spectrograms
 # author: Mehmet Sanisoglu
 
 source /home/sanisoglum/miniconda3/bin/activate my_env
@@ -25,4 +25,3 @@ srun python preparation.py
 srun python create_spectrograms.py
 srun python prepare_dataset.py
 srun python categorize_spectrograms.py
-srun python train_model.py
