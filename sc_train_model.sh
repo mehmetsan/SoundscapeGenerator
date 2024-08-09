@@ -22,4 +22,6 @@ cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
+rm -r /ext/sanisoglum
+
 srun python train_model.py
