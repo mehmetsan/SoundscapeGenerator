@@ -46,7 +46,7 @@ else:
             print('Model is loaded')
             # Extract model components
             model = pipeline.unet
-            model = nn.DataParallel(model)
+            #model = nn.DataParallel(model)
             text_encoder = pipeline.text_encoder
             tokenizer = pipeline.tokenizer
 
