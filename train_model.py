@@ -39,9 +39,7 @@ else:
             else:
                 print('Downloading model from scratch')
                 os.makedirs(model_cache_dir, exist_ok=True)
-            pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1",
-                                                               cache_dir=model_cache_dir,
-                                                               resume_download=True)
+            pipeline = StableDiffusionPipeline.from_pretrained("/ext/sanisoglum/checkpoints")
 
             print('Model is loaded')
             # Extract model components

@@ -2,9 +2,15 @@ import os
 import torch.nn as nn
 from diffusers import StableDiffusionPipeline
 
-model_cache_dir = '/ext/sanisoglum/checkpoints/'
+model_cache_dir = '/ext/sanisoglum/checkpoints/caches'
 
-pipeline = StableDiffusionPipeline.from_pretrained(model_cache_dir,
+if os.path.exists(os.path.join(model_cache_dir, 'models--riffusion--riffusion-model-v1')):
+    print('A cache already exists, either resuming download or skipping download')
+else:
+    print('Downloading model from scratch')
+    os.makedirs(model_cache_dir, exist_ok=True)
+
+pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1",
                                                    cache_dir=model_cache_dir,
                                                    resume_download=True)
 
