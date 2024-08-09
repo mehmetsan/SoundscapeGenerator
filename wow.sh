@@ -10,6 +10,7 @@
 #SBATCH --mem 16G
 #SBATCH --gres=gpu:rtx
 
-source /home/sanisoglum/miniconda3/bin/activate my_env
-
-conda install conda-forge::accelerate
+ls /ext/sanisoglum/
+ls /ext/sanisoglum/checkpoints
+ls /ext/sanisoglum/checkpoints/caches
+ls /ext/sanisoglum/checkpoints/models--riffusion--riffusion-model-v1
