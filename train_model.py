@@ -2,32 +2,51 @@ import os
 
 import torch
 import torch.nn as nn
+import wandb
 from diffusers import StableDiffusionPipeline, DDPMScheduler
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
+
 from utils.training_utils import CustomImageDataset
 
 if not os.path.exists('categorized_spectrograms'):
     print('Categorized spectrograms are missing, run the categorize_spectrograms.py script first')
 else:
-    dataset = CustomImageDataset(root_dir='categorized_spectrograms')
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
+    # Logging in to wandb
+    try:
+        wandb.login()
+    except Exception as e:
+        raise Exception(f"Wandb login failed due to {e}")
 
-    # Load the checkpoint
-    os.makedirs('/ext/sanisoglum/checkpoints/caches', exist_ok=True)
-    pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1", cache_dir='/ext/sanisoglum/checkpoints/caches')
+    # Model loading
+    try:
+        dataset = CustomImageDataset(root_dir='categorized_spectrograms')
+        dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
 
-    # Extract model components
-    model = pipeline.unet
-    model = nn.DataParallel(model)
-    text_encoder = pipeline.text_encoder
-    tokenizer = pipeline.tokenizer
+        # Load the checkpoint
+        os.makedirs('/ext/sanisoglum/checkpoints/caches', exist_ok=True)
+        pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1", cache_dir='/ext/sanisoglum/checkpoints/caches')
 
-    # Move model to device
-    if torch.cuda.is_available():
+        # Extract model components
+        model = pipeline.unet
+        model = nn.DataParallel(model)
+        text_encoder = pipeline.text_encoder
+        tokenizer = pipeline.tokenizer
+
+    except Exception as e:
+        raise Exception(f"Model loading failed due to {e}")
+
+    # Try training
+    try:
+        if not torch.cuda.is_available():
+            raise Exception("Cuda is not available, aborted training")
+
+        # Move model to device
         device = "cuda"
         model.to(device)
         text_encoder.to(device)
+
+        print(f"\nThere are {torch.cuda.device_count()} available devices")
 
         # Training settings
         num_epochs = 1
@@ -35,6 +54,7 @@ else:
         scheduler = DDPMScheduler(beta_start=0.0001, beta_end=0.02, num_train_timesteps=500)
         optimizer = AdamW(model.parameters(), lr=learning_rate)
 
+        print('Started training')
         # Training loop
         for epoch in range(num_epochs):
             print(f"Epoch: {epoch}")
@@ -53,6 +73,7 @@ else:
 
                 model_output = model(noisy_images, time_steps, text_embeddings)["sample"]
 
+                print(f"Model output is {model_output}")
                 # Compute loss (simplified)
                 loss = torch.nn.functional.mse_loss(model_output, noise)
 
@@ -63,9 +84,6 @@ else:
 
             print(f"Epoch {epoch + 1}/{num_epochs} - Loss: {loss.item()}")
 
-        # Save the fine-tuned model
-        model.save_pretrained('fine-tuned-riffusion')
-
         print('Finished training')
-    else:
-        print("Cuda wasn't available, terminating the training")
+    except Exception as e:
+        print(f"Training failed due to {e}")
