@@ -10,7 +10,4 @@
 #SBATCH --mem 16G
 #SBATCH --gres=gpu:rtx
 
-ls /ext/sanisoglum/
 ls /ext/sanisoglum/checkpoints
-ls /ext/sanisoglum/checkpoints/caches
-ls /ext/sanisoglum/checkpoints/caches/models--riffusion--riffusion-model-v1
