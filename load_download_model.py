@@ -1,6 +1,9 @@
 import os
 import torch.nn as nn
 from diffusers import StableDiffusionPipeline
+from torch.utils.data import DataLoader
+
+from utils.training_utils import CustomImageDataset
 
 model_cache_dir = '/ext/sanisoglum/checkpoints/caches'
 
@@ -21,3 +24,10 @@ tokenizer = pipeline.tokenizer
 
 print(model)
 print('Model is loaded')
+
+try:
+    dataset = CustomImageDataset(root_dir='categorized_spectrograms')
+    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
+    print('Dataset loading successful')
+except Exception as e:
+    raise Exception(f"Model loading failed due to {e}")

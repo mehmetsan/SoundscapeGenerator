@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name soundscape_generator
+#SBATCH --job-name load_download_riffusion_model
 #SBATCH --output log/%j_out.txt
 #SBATCH --error log/%j_err.txt
 #SBATCH --mail-user mehmet.sanisoglu@studenti.unipd.it
