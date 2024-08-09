@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 
 from utils.training_utils import CustomImageDataset
 
-model_cache_dir = 'ext/sanisoglum/checkpoints/caches'
+model_cache_dir = '/ext/sanisoglum/checkpoints/caches'
 
 
 if not os.path.exists('categorized_spectrograms'):
@@ -26,9 +26,15 @@ else:
         dataset = CustomImageDataset(root_dir='categorized_spectrograms')
         dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
 
+        print(os.listdir("/ext"))
+        print(os.listdir(model_cache_dir))
+
         # Load the checkpoint
-        if not os.path.exists('ext/sanisoglum/checkpoints/caches/riffusion-model-v1.ckpt'):
-            print('Model is not downloaded')
+        if not os.path.exists('/ext/sanisoglum/checkpoints/caches/riffusion-model-v1.ckpt'):
+            print('Downloading the model')
+        else:
+            print("Model checkpoint is already downloaded")
+
         os.makedirs(model_cache_dir, exist_ok=True)
         pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1", cache_dir=model_cache_dir)
 
