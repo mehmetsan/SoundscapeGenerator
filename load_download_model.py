@@ -24,15 +24,7 @@ model = nn.DataParallel(model)
 text_encoder = pipeline.text_encoder
 tokenizer = pipeline.tokenizer
 
-print(model)
 print('Model is loaded')
-
-try:
-    dataset = CustomImageDataset(root_dir='categorized_spectrograms')
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
-    print('Dataset loading successful')
-except Exception as e:
-    raise Exception(f"Model loading failed due to {e}")
 
 # Try training
 try:
