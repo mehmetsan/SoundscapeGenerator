@@ -7,7 +7,7 @@
 #SBATCH --time 2-20:00:00
 #SBATCH --ntasks 1
 #SBATCH --partition allgroups
-#SBATCH --mem 24G
+#SBATCH --mem 36G
 #SBATCH --gres=gpu:rtx:2
 
 # description: Slurm job to train the riffusion model with emotion tags
