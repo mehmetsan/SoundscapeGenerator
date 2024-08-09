@@ -10,4 +10,6 @@
 #SBATCH --mem 16G
 #SBATCH --gres=gpu:rtx
 
+source /home/sanisoglum/miniconda3/bin/activate my_env
+
 conda install conda-forge::accelerate
