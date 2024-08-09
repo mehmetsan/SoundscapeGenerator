@@ -14,7 +14,7 @@ if not os.path.exists('categorized_spectrograms'):
 else:
     # Logging in to wandb
     try:
-        wandb.login()
+        wandb.login(key="0cab68fc9cc47efc6cdc61d3d97537d8690e0379")
     except Exception as e:
         raise Exception(f"Wandb login failed due to {e}")
 
