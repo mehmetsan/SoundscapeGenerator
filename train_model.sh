@@ -18,7 +18,4 @@ source /home/sanisoglum/miniconda3/bin/activate my_env
 WORKDIR=/home/sanisoglum/SoundscapeGenerator
 cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 
-export HYDRA_FULL_ERROR=1
-export CUDA_LAUNCH_BLOCKING=1
-
-srun python train_model.py
+rm -r /ext/sanisoglum
