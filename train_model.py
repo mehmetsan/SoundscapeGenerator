@@ -14,8 +14,8 @@ else:
     dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
 
     # Load the checkpoint
-    os.makedirs('checkpoints/caches', exist_ok=True)
-    pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1", cache_dir='checkpoints/caches')
+    os.makedirs('/ext/sanisoglum/checkpoints/caches', exist_ok=True)
+    pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1", cache_dir='/ext/sanisoglum/checkpoints/caches')
 
     # Extract model components
     model = pipeline.unet
