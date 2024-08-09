@@ -1,10 +1,10 @@
 import os
 
 import torch
+import torch.nn as nn
 from diffusers import StableDiffusionPipeline, DDPMScheduler
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
-
 from utils.training_utils import CustomImageDataset
 
 if not os.path.exists('categorized_spectrograms'):
@@ -19,6 +19,7 @@ else:
 
     # Extract model components
     model = pipeline.unet
+    model = nn.DataParallel(model)
     text_encoder = pipeline.text_encoder
     tokenizer = pipeline.tokenizer
 
