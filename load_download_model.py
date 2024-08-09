@@ -10,7 +10,7 @@ else:
     print('Downloading model from scratch')
     os.makedirs(model_cache_dir, exist_ok=True)
 
-pipeline = StableDiffusionPipeline.from_pretrained(os.path.join(model_cache_dir, 'models--riffusion--riffusion-model-v1'),
+pipeline = StableDiffusionPipeline.from_pretrained(model_cache_dir,
                                                    cache_dir=model_cache_dir,
                                                    resume_download=True)
 
