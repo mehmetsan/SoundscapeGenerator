@@ -28,7 +28,8 @@ class CustomImageDataset(Dataset):
 
     def __getitem__(self, idx):
         image_path = self.image_paths[idx]
-        image = Image.open(image_path)
+        image = Image.open(image_path).convert("L")  # Convert image to grayscale (L mode)
+        image = np.array(image, dtype=np.float32) / 255.0  # Normalize to [0, 1]
         image = torch.tensor(image)
         label = self.labels[idx]
 
