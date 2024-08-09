@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import Dataset
-
+import torchvision.transforms as transforms
 
 def list_directories(folder_path):
     return [d for d in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, d))]
@@ -29,8 +29,7 @@ class CustomImageDataset(Dataset):
     def __getitem__(self, idx):
         image_path = self.image_paths[idx]
         image = Image.open(image_path).convert("L")  # Convert image to grayscale (L mode)
-        image = np.array(image, dtype=np.float32) / 255.0  # Normalize to [0, 1]
-        image = torch.tensor(image)
+        image = transforms.ToTensor()(image)
         label = self.labels[idx]
 
         return image, label
