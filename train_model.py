@@ -26,8 +26,6 @@ else:
         dataset = CustomImageDataset(root_dir='categorized_spectrograms')
         dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
 
-        # Load the checkpoint
-
         os.makedirs(model_cache_dir, exist_ok=True)
         pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1",
                                                            cache_dir=model_cache_dir,
