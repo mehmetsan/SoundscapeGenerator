@@ -14,6 +14,9 @@ pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1
                                                    cache_dir=model_cache_dir,
                                                    resume_download=True)
 
+local_path = "/ext/sanisoglum/checkpoints/"
+pipeline.save_pretrained(local_path)
+
 model = pipeline.unet
 model = nn.DataParallel(model)
 text_encoder = pipeline.text_encoder
