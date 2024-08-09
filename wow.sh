@@ -8,6 +8,6 @@
 #SBATCH --ntasks 1
 #SBATCH --partition allgroups
 #SBATCH --mem 16G
-#SBATCH --gres=rtx
+#SBATCH --gres=gpu:rtx
 
 conda install conda-forge::accelerate
