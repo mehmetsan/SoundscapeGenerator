@@ -18,4 +18,5 @@ source /home/sanisoglum/miniconda3/bin/activate my_env
 WORKDIR=/home/sanisoglum/SoundscapeGenerator
 cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 
-rm -r /ext/sanisoglum
+ls -l /ext
+ls -l /ext/sanisoglum
