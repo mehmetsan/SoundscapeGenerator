@@ -21,3 +21,4 @@ cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 ls -l /ext
 ls -l /ext/sanisoglum
 ls -l /ext/sanisoglum/checkpoints
+rm -r /ext/sanisoglum/checkpoints
