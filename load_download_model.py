@@ -6,7 +6,6 @@ model_cache_dir = '/ext/sanisoglum/checkpoints/caches'
 
 if os.path.exists(os.path.join(model_cache_dir, 'models--riffusion--riffusion-model-v1')):
     print('A cache already exists, either resuming download or skipping download')
-
 else:
     print('Downloading model from scratch')
 
