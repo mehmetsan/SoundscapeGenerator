@@ -12,5 +12,4 @@
 
 ls /ext/sanisoglum/
 ls /ext/sanisoglum/checkpoints
-ls /ext/sanisoglum/checkpoints/caches
-ls /ext/sanisoglum/checkpoints/models--riffusion--riffusion-model-v1
+ls -ll /ext/sanisoglum/checkpoints/caches
