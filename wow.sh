@@ -19,4 +19,9 @@ cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
-srun python alternate_train.py
+ls /ext/sanisoglum/
+echo ---
+ls /ext/sanisoglum/checkpoints
+echo ---
+ls /ext/sanisoglum/checkpoints/caches
+
