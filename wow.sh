@@ -23,3 +23,5 @@ ls /ext/sanisoglum
 wget https://huggingface.co/riffusion/riffusion-model-v1/resolve/main/riffusion-model-v1.ckpt -O /ext/sanisoglum/riffusion-model-v1
 
 echo Download complete
+
+ls /ext/sanisoglum/riffusion-model-v1
