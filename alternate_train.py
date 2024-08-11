@@ -3,7 +3,7 @@ from utils.training_utils import CustomImageDataset
 import os
 from diffusers import StableDiffusionPipeline
 
-model = StableDiffusionPipeline.from_pretrained('/ext/sanisoglum/checkpoints')
+model = StableDiffusionPipeline.from_pretrained('/ext/sanisoglum/checkpoints/caches/models--riffusion--riffusion-model-v1')
 
 print('model loaded')
 
