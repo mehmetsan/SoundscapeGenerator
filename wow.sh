@@ -10,4 +10,13 @@
 #SBATCH --mem 16G
 #SBATCH --gres=gpu:rtx
 
-ls /ext/sanisoglum/checkpoints
+source /home/sanisoglum/miniconda3/bin/activate my_env
+
+WORKDIR=/home/sanisoglum/SoundscapeGenerator
+cd "$WORKDIR" || exit 0  # Create and change to the specified directory
+
+
+export HYDRA_FULL_ERROR=1
+export CUDA_LAUNCH_BLOCKING=1
+
+srun python alternate_train.py
