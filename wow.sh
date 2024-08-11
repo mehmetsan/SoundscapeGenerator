@@ -8,16 +8,18 @@
 #SBATCH --ntasks 1
 #SBATCH --partition allgroups
 #SBATCH --mem 16G
-#SBATCH --gres=gpu:rtx:2
+#SBATCH --gres=gpu:rtx
 
-source /home/sanisoglum/miniconda3/bin/activate my_env
+rm -r /ext/sanisoglum
+mkdir /ext/sanisoglum
 
-WORKDIR=/home/sanisoglum/SoundscapeGenerator
+WORKDIR=/ext/sanisoglum
 cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 
+git clone https://huggingface.co/riffusion/riffusion-model-v1.git
 
 export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
-srun python alternate_train.py
+#wget https://huggingface.co/riffusion/riffusion-model-v1/resolve/main/riffusion-model-v1.ckpt
 
