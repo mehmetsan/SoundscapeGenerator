@@ -20,7 +20,7 @@ cp -a riffusion-model-v1 /ext/sanisoglum
 
 ls /ext/sanisoglum
 
-wget https://huggingface.co/riffusion/riffusion-model-v1/resolve/main/riffusion-model-v1.ckpt -O /ext/sanisoglum/riffusion-model-v1
+wget https://huggingface.co/riffusion/riffusion-model-v1/resolve/main/riffusion-model-v1.ckpt -O /ext/sanisoglum/riffusion-model-v1/riffusion-model-v1.ckpt
 
 echo Download complete
 
