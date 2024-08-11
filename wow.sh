@@ -13,13 +13,12 @@
 rm -r /ext/sanisoglum
 mkdir /ext/sanisoglum
 
-WORKDIR=/ext/sanisoglum
+WORKDIR=/home/sanisoglum
 cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 
-git clone https://huggingface.co/riffusion/riffusion-model-v1.git
+cp -a riffusion-model-v1 /ext/sanisoglum
 
-export HYDRA_FULL_ERROR=1
-export CUDA_LAUNCH_BLOCKING=1
+ls /ext/sanisoglum
 
-#wget https://huggingface.co/riffusion/riffusion-model-v1/resolve/main/riffusion-model-v1.ckpt
+#wget https://huggingface.co/riffusion/riffusion-model-v1/resolve/main/riffusion-model-v1.ckpt -O
 
