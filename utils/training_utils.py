@@ -27,9 +27,10 @@ class CustomImageDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
+        transform = transforms.Compose([transforms.ToTensor()])
         image_path = self.image_paths[idx]
         image = Image.open(image_path).convert("L")  # Convert image to grayscale (L mode)
-        image = transforms.ToTensor()(image)
+        image = transform(image)
         label = self.labels[idx]
 
         return image, label

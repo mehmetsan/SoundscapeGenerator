@@ -8,9 +8,7 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader
 
 from utils.training_utils import CustomImageDataset
-
-model_cache_dir = '/ext/sanisoglum/checkpoints/caches'
-
+from diffusers import DiffusionPipeline
 
 if not os.path.exists('categorized_spectrograms'):
     print('Categorized spectrograms are missing, run the categorize_spectrograms.py script first')
@@ -30,16 +28,11 @@ else:
             dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
             print('Dataset loading successful')
         except Exception as e:
-            raise Exception(f"Model loading failed due to {e}")
+            raise Exception(f"Dataset loading failed due to {e}")
 
         # Model loading
         try:
-            if os.path.exists(os.path.join(model_cache_dir, 'models--riffusion--riffusion-model-v1')):
-                print('A cache already exists, either resuming download or skipping download')
-            else:
-                print('Downloading model from scratch')
-                os.makedirs(model_cache_dir, exist_ok=True)
-            pipeline = StableDiffusionPipeline.from_pretrained("/ext/sanisoglum/checkpoints")
+            pipeline = DiffusionPipeline.from_pretrained("/ext/sanisoglum/riffusion-model-v1")
 
             print('Model is loaded')
             # Extract model components
