@@ -1,9 +1,9 @@
 from transformers import Trainer, TrainingArguments, AutoModelForImageClassification
 from utils.training_utils import CustomImageDataset
 import os
+from diffusers import StableDiffusionPipeline
 
-
-model = AutoModelForImageClassification.from_pretrained('/ext/sanisoglum/checkpoints')
+model = StableDiffusionPipeline.from_pretrained('/ext/sanisoglum/checkpoints')
 
 print('model loaded')
 

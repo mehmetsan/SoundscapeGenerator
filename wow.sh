@@ -8,7 +8,7 @@
 #SBATCH --ntasks 1
 #SBATCH --partition allgroups
 #SBATCH --mem 16G
-#SBATCH --gres=gpu:rtx
+#SBATCH --gres=gpu:rtx:2
 
 source /home/sanisoglum/miniconda3/bin/activate my_env
 
@@ -19,9 +19,5 @@ cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
-ls /ext/sanisoglum/
-echo ---
-ls /ext/sanisoglum/checkpoints
-echo ---
-ls /ext/sanisoglum/checkpoints/caches
+srun python alternate_train.py
 
