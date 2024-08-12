@@ -26,14 +26,6 @@ else:
         except Exception as e:
             raise Exception(f"Wandb login failed due to {e}")
 
-        # Dataset loading
-        try:
-            dataset = CustomImageDataset(root_dir='categorized_spectrograms')
-            dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
-            print('Dataset loading successful')
-        except Exception as e:
-            raise Exception(f"Dataset loading failed due to {e}")
-
         # Model loading
         try:
             pipeline = DiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1",
@@ -49,6 +41,14 @@ else:
 
         except Exception as e:
             raise Exception(f"Model loading failed due to {e}")
+
+        # Dataset loading
+        try:
+            dataset = CustomImageDataset(root_dir='categorized_spectrograms')
+            dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
+            print('Dataset loading successful')
+        except Exception as e:
+            raise Exception(f"Dataset loading failed due to {e}")
 
         # Try training
         try:
