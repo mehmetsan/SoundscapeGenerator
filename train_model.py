@@ -88,9 +88,9 @@ else:
 
                     model_output = model(noisy_images, time_steps, text_embeddings)["sample"]
 
-                    print(f"Model output is {model_output}")
                     # Compute loss (simplified)
                     loss = torch.nn.functional.mse_loss(model_output, noise)
+                    wandb.log({"loss": loss.item()})
 
                     # Backward pass and optimization
                     optimizer.zero_grad()

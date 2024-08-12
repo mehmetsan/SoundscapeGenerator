@@ -16,7 +16,6 @@ try:
     pipeline = DiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1",
                                                  cache_dir=model_cache_path,
                                                  resume_download=True)
-
     print('Model is loaded')
     # Extract model components
     model = pipeline.unet
