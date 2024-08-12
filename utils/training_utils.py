@@ -1,10 +1,10 @@
 import os
 
-import numpy as np
 import torch
+import torchvision.transforms as transforms
 from PIL import Image
 from torch.utils.data import Dataset
-import torchvision.transforms as transforms
+
 
 def list_directories(folder_path):
     return [d for d in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, d))]
@@ -27,9 +27,13 @@ class CustomImageDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        transform = transforms.Compose([transforms.ToTensor()])
+        transform = transforms.Compose([
+            transforms.Grayscale(),
+            transforms.PILToTensor(),
+            transforms.ConvertImageDtype(torch.float)
+        ])
         image_path = self.image_paths[idx]
-        image = Image.open(image_path).convert("L")  # Convert image to grayscale (L mode)
+        image = Image.open(image_path)
         image = transform(image)
         label = self.labels[idx]
 
