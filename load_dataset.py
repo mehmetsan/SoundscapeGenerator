@@ -49,3 +49,8 @@ num_epochs = 1
 learning_rate = 1e-4
 scheduler = DDPMScheduler(beta_start=0.0001, beta_end=0.02, num_train_timesteps=500)
 optimizer = AdamW(model.parameters(), lr=learning_rate)
+
+for epoch in range(num_epochs):
+    print(f"Epoch: {epoch}")
+    for images, labels in dataloader:
+        images = images.to(device)
