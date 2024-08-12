@@ -36,3 +36,16 @@ except Exception as e:
     raise Exception(f"Dataset loading failed due to {e}")
 
 print("wow lets go")
+
+# Move model to device
+device = "cuda"
+model.to(device)
+text_encoder.to(device)
+
+print(f"\nThere are {torch.cuda.device_count()} available devices")
+
+# Training settings
+num_epochs = 1
+learning_rate = 1e-4
+scheduler = DDPMScheduler(beta_start=0.0001, beta_end=0.02, num_train_timesteps=500)
+optimizer = AdamW(model.parameters(), lr=learning_rate)
