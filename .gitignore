@@ -5,7 +5,7 @@
 /deam_data
 /categorized_spectrograms/
 /.idea/
-
+env_variables.py
 
 /result.csv
 
