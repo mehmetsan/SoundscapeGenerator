@@ -1,3 +1,4 @@
+import torch.nn as nn
 from diffusers import DiffusionPipeline
 from torch.utils.data import DataLoader
 
@@ -13,6 +14,7 @@ try:
     print('Model is loaded')
     # Extract model components
     model = pipeline.unet
+    model = nn.DataParallel(model)
     text_encoder = pipeline.text_encoder
     tokenizer = pipeline.tokenizer
 
