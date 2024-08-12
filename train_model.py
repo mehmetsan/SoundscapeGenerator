@@ -3,12 +3,13 @@ import os
 import torch
 import torch.nn as nn
 import wandb
-from diffusers import StableDiffusionPipeline, DDPMScheduler
+from diffusers import DDPMScheduler
+from diffusers import DiffusionPipeline
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 
+from env_variables import model_cache_path
 from utils.training_utils import CustomImageDataset
-from diffusers import DiffusionPipeline
 
 if not os.path.exists('categorized_spectrograms'):
     print('Categorized spectrograms are missing, run the categorize_spectrograms.py script first')
@@ -32,7 +33,9 @@ else:
 
         # Model loading
         try:
-            pipeline = DiffusionPipeline.from_pretrained("/ext/sanisoglum/riffusion-model-v1")
+            pipeline = DiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1",
+                                                         cache_dir=model_cache_path,
+                                                         resume_download=True)
 
             print('Model is loaded')
             # Extract model components
