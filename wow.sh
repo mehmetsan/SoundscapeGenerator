@@ -11,17 +11,4 @@
 #SBATCH --gres=gpu:rtx
 
 rm -r /ext/sanisoglum
-mkdir /ext/sanisoglum
-
-WORKDIR=/home/sanisoglum
-cd "$WORKDIR" || exit 0  # Create and change to the specified directory
-
-cp -a riffusion-model-v1 /ext/sanisoglum
-
-ls /ext/sanisoglum
-
-wget https://huggingface.co/riffusion/riffusion-model-v1/resolve/main/riffusion-model-v1.ckpt -O /ext/sanisoglum/riffusion-model-v1/riffusion-model-v1.ckpt
-
-echo Download complete
-
-ls /ext/sanisoglum/riffusion-model-v1
+mkdir /ext/sanisoglum/caches
