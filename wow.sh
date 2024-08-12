@@ -11,4 +11,5 @@
 #SBATCH --gres=gpu:rtx
 
 rm -r /ext/sanisoglum
+mkdir /ext/sanisoglum
 mkdir /ext/sanisoglum/caches
