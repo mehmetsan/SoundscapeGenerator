@@ -7,7 +7,7 @@
 #SBATCH --time 2-20:00:00
 #SBATCH --ntasks 1
 #SBATCH --partition allgroups
-#SBATCH --mem 16G
+#SBATCH --mem 36G
 #SBATCH --gres=gpu:rtx:2
 
 # description: Slurm job to train the riffusion model with emotion tags
@@ -22,4 +22,4 @@ cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
-srun python dummy_train_model.py
+srun python alternate_train.py
