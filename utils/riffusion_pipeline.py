@@ -10,6 +10,7 @@ import typing as T
 
 import numpy as np
 import torch
+import diffusers
 from diffusers.models import AutoencoderKL, UNet2DConditionModel
 from diffusers.pipeline_utils import DiffusionPipeline
 from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
