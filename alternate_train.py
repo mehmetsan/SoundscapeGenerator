@@ -1,12 +1,13 @@
 import torch
 import wandb
 import torch.nn as nn
-
+from accelerate import Accelerator
 from env_variables import model_cache_path
 from utils.riffusion_pipeline import RiffusionPipeline
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
+accelerator = Accelerator()
 
 def add_extra_channel(images):
     extra_channel = torch.zeros(images.size(0), 1, images.size(2), images.size(3), device=images.device)
@@ -37,7 +38,7 @@ dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
 print('Dataset ready')
 
-device = "cuda"
+#device = "cuda"
 
 # Load the RiffusionPipeline
 pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
@@ -45,28 +46,30 @@ pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riff
                                              resume_download=True)
 print('Model is loaded')
 
-pipeline.to(device)  # Move the pipeline to the GPU if available
+#pipeline.to(device)  # Move the pipeline to the GPU if available
 
 # Assuming the pipeline has a model attribute that is trainable
 unet = pipeline.unet
-unet = nn.DataParallel(unet)
-unet.to(device)
+#unet = nn.DataParallel(unet)
+#unet.to(device)
 
 # Define optimizer and loss function
 optimizer = torch.optim.AdamW(unet.parameters(), lr=5e-5)
 criterion = torch.nn.CrossEntropyLoss()
+
+unet, optimizer, dataloader = accelerator.prepare(unet, optimizer, dataloader)
 
 print('Started training')
 # Training loop
 num_epochs = 10  # Set the number of epochs
 for epoch in range(num_epochs):
     print(f"Epoch: {epoch}")
-    unet.train()  # Set the model to training mode
+    #unet.train()  # Set the model to training mode
     running_loss = 0.0
 
     for batch in dataloader:
         images, labels = batch
-        images, labels = images.to(device), labels.to(device)  # Move data to the GPU if available
+        #images, labels = images.to(device), labels.to(device)  # Move data to the GPU if available
 
         images = add_extra_channel(images)
 
@@ -76,6 +79,7 @@ for epoch in range(num_epochs):
         optimizer.zero_grad()  # Zero the parameter gradients
         outputs = unet(images, timesteps, encoder_hidden_states)  # Forward pass
         loss = criterion(outputs, labels)  # Compute the loss
+        accelerator.backward(loss)
 
         wandb.log({"loss": loss.item()})
 
