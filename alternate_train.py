@@ -71,7 +71,7 @@ for epoch in range(num_epochs):
         images, labels = batch
         #images, labels = images.to(device), labels.to(device)  # Move data to the GPU if available
 
-        images = add_extra_channel(images)
+        # images = add_extra_channel(images)
 
         timesteps = torch.randint(0, 1000, (images.size(0),), device=accelerator.device).long()  # Example timesteps
         encoder_hidden_states = torch.randn(images.size(0), 512, device=accelerator.device)  # Example encoder hidden states
