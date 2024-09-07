@@ -7,7 +7,7 @@ from utils.riffusion_pipeline import RiffusionPipeline
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
-accelerator = Accelerator()
+accelerator = Accelerator(mixed_precision="fp16")
 
 def add_extra_channel(images):
     extra_channel = torch.zeros(images.size(0), 1, images.size(2), images.size(3), device=images.device)
@@ -35,7 +35,7 @@ except Exception as e:
 dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transform)
 
 # Create DataLoader
-dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
 
 print('Dataset ready')
 
@@ -51,6 +51,7 @@ print('Model is loaded')
 
 # Assuming the pipeline has a model attribute that is trainable
 unet = pipeline.unet
+unet.gradient_checkpointing_enable()
 
 # Define optimizer and loss function
 optimizer = torch.optim.AdamW(unet.parameters(), lr=5e-5)
