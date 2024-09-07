@@ -79,7 +79,7 @@ for epoch in range(num_epochs):
 
         # Forward pass
         try:
-            outputs = unet(images, timesteps, encoder_hidden_states)  # Forward pass
+            outputs = unet(images, timesteps, encoder_hidden_states).sample
         except RuntimeError as e:
             print(f"Out of memory during forward pass: {e}")
             torch.cuda.empty_cache()
