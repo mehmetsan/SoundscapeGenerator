@@ -73,8 +73,7 @@ for epoch in range(num_epochs):
         images = add_extra_channel(images)
 
         timesteps = torch.randint(0, 1000, (images.size(0),), device=accelerator.device).long()  # Example timesteps
-        encoder_hidden_states = torch.randn(images.size(0), 512, device=accelerator.device)  # Example encoder hidden states
-        encoder_hidden_states = encoder_hidden_states.unsqueeze(1)
+        encoder_hidden_states = torch.randn(images.size(0), 1, 768, device=accelerator.device)  # Now (4, 1, 768)
         optimizer.zero_grad()  # Zero the parameter gradients
         outputs = unet(images, timesteps, encoder_hidden_states)  # Forward pass
         loss = criterion(outputs, labels)  # Compute the loss
