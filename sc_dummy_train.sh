@@ -5,7 +5,7 @@
 #SBATCH --mail-user mehmet.sanisoglu@studenti.unipd.it
 #SBATCH --mail-type ALL
 #SBATCH --time 2-20:00:00
-#SBATCH --ntasks 2
+#SBATCH --ntasks=2
 #SBATCH --partition allgroups
 #SBATCH --mem 20G
 #SBATCH --gres=gpu:a40:2
