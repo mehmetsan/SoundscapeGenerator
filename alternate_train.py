@@ -82,7 +82,7 @@ if local_rank == 0:
     print('Started training')
 
 # Training loop
-num_epochs = 10  # Set the number of epochs
+num_epochs = 1  # Set the number of epochs
 for epoch in range(num_epochs):
     if local_rank == 0:
         print(f"Epoch: {epoch}")
