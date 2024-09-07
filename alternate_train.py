@@ -35,7 +35,6 @@ accelerator = Accelerator(mixed_precision="fp16", device_placement=True)
 
 if accelerator.num_processes > 1:
     print("multiple gpus")
-    torch.distributed.init_process_group(backend='nccl')
 
 print(f"CUDA_VISIBLE_DEVICES: {os.environ['CUDA_VISIBLE_DEVICES']}")
 print(f"Number of devices: {accelerator.num_processes}")
