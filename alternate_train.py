@@ -34,13 +34,12 @@ if accelerator.is_local_main_process:
         )
     except Exception as e:
         raise Exception(f"Wandb login failed due to {e}")
-else:
-    # Disable WandB logging for non-main processes
-    wandb.init(mode="disabled")
 
-print(f"CUDA_VISIBLE_DEVICES: {os.environ['CUDA_VISIBLE_DEVICES']}")
-print(f"Number of devices: {accelerator.num_processes}")
-print(f"Using device: {accelerator.device}")
+# Print debugging info for all processes
+if accelerator.is_local_main_process:
+    print(f"CUDA_VISIBLE_DEVICES: {os.environ['CUDA_VISIBLE_DEVICES']}")
+    print(f"Number of devices: {accelerator.num_processes}")
+    print(f"Using device: {accelerator.device}")
 torch.cuda.empty_cache()
 
 # Load dataset
@@ -49,14 +48,16 @@ dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transf
 # Create DataLoader
 dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
-print('Dataset ready')
+if accelerator.is_local_main_process:
+    print('Dataset ready')
 
 # Load the RiffusionPipeline
 pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
                                              cache_dir=model_cache_path,
                                              resume_download=True,
                                              )
-print('Model is loaded')
+if accelerator.is_local_main_process:
+    print('Model is loaded')
 
 # Assuming the pipeline has a model attribute that is trainable
 unet = pipeline.unet
@@ -67,12 +68,14 @@ criterion = torch.nn.CrossEntropyLoss()
 
 unet, optimizer, dataloader = accelerator.prepare(unet, optimizer, dataloader)
 
-print('Started training')
+if accelerator.is_local_main_process:
+    print('Started training')
 
 # Training loop
 num_epochs = 10  # Set the number of epochs
 for epoch in range(num_epochs):
-    print(f"Epoch: {epoch}")
+    if accelerator.is_local_main_process:
+        print(f"Epoch: {epoch}")
     unet.train()  # Set the model to training mode
     running_loss = 0.0
 
@@ -84,11 +87,6 @@ for epoch in range(num_epochs):
         timesteps = torch.randint(0, 1000, (images.size(0),), device=accelerator.device).long()  # Example timesteps
         encoder_hidden_states = torch.randn(images.size(0), 1, 768, device=accelerator.device)  # Now (4, 1, 768)
         optimizer.zero_grad()  # Zero the parameter gradients
-
-        print(f"unet device: {next(unet.parameters()).device}")
-        print(f"Images device: {images.device}")
-        print(f"Timesteps device: {timesteps.device}")
-        print(f"Encoder hidden states device: {encoder_hidden_states.device}")
 
         outputs = unet(images, timesteps, encoder_hidden_states)  # Forward pass
         loss = criterion(outputs, labels)  # Compute the loss
@@ -103,9 +101,11 @@ for epoch in range(num_epochs):
         running_loss += loss.item()
 
     # Print the average loss for this epoch
-    print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(dataloader)}")
+    if accelerator.is_local_main_process:
+        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(dataloader)}")
 
-print('Finished training')
+if accelerator.is_local_main_process:
+    print('Finished training')
 
 # Save the trained model (only in the main process)
 if accelerator.is_local_main_process:
