@@ -27,4 +27,4 @@ export WANDB_DEBUG=true
 export WANDB_HTTP_TIMEOUT=60  # Increase timeout
 
 
-srun accelerate launch --main_process_port 0 alternate_train.py
+srun accelerate launch --main_process_port 29500 alternate_train.py
