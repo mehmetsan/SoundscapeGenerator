@@ -35,7 +35,7 @@ except Exception as e:
 dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transform)
 
 # Create DataLoader
-dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
 print('Dataset ready')
 
