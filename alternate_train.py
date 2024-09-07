@@ -24,8 +24,11 @@ transform = transforms.Compose([
 # Initialize the accelerator
 accelerator = Accelerator(mixed_precision="fp16", device_placement=True)
 
-# Set up WandB
-if accelerator.is_local_main_process:
+# Get the process rank (for distributed setups)
+local_rank = int(os.getenv("LOCAL_RANK", 0))  # Rank of the current process
+
+# Initialize WandB only on the main process (rank 0)
+if local_rank == 0:
     try:
         print('Attempting to log into WandB...')
         wandb.login(key="0cab68fc9cc47efc6cdc61d3d97537d8690e0379")
@@ -42,7 +45,7 @@ else:
     os.environ["WANDB_MODE"] = "disabled"
 
 # Print debugging info for all processes
-if accelerator.is_local_main_process:
+if local_rank == 0:
     print(f"CUDA_VISIBLE_DEVICES: {os.environ['CUDA_VISIBLE_DEVICES']}")
     print(f"Number of devices: {accelerator.num_processes}")
     print(f"Using device: {accelerator.device}")
@@ -54,7 +57,7 @@ dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transf
 # Create DataLoader
 dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
-if accelerator.is_local_main_process:
+if local_rank == 0:
     print('Dataset ready')
 
 # Load the RiffusionPipeline
@@ -62,7 +65,7 @@ pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riff
                                              cache_dir=model_cache_path,
                                              resume_download=True,
                                              )
-if accelerator.is_local_main_process:
+if local_rank == 0:
     print('Model is loaded')
 
 # Assuming the pipeline has a model attribute that is trainable
@@ -74,13 +77,13 @@ criterion = torch.nn.CrossEntropyLoss()
 
 unet, optimizer, dataloader = accelerator.prepare(unet, optimizer, dataloader)
 
-if accelerator.is_local_main_process:
+if local_rank == 0:
     print('Started training')
 
 # Training loop
 num_epochs = 10  # Set the number of epochs
 for epoch in range(num_epochs):
-    if accelerator.is_local_main_process:
+    if local_rank == 0:
         print(f"Epoch: {epoch}")
     unet.train()  # Set the model to training mode
     running_loss = 0.0
@@ -99,7 +102,7 @@ for epoch in range(num_epochs):
         accelerator.backward(loss)
 
         # Log only from the main process (rank 0)
-        if accelerator.is_local_main_process:
+        if local_rank == 0:
             wandb.log({"loss": loss.item()})
 
         optimizer.step()  # Optimize the parameters
@@ -107,16 +110,16 @@ for epoch in range(num_epochs):
         running_loss += loss.item()
 
     # Print the average loss for this epoch
-    if accelerator.is_local_main_process:
+    if local_rank == 0:
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(dataloader)}")
 
-if accelerator.is_local_main_process:
+if local_rank == 0:
     print('Finished training')
 
 # Save the trained model (only in the main process)
-if accelerator.is_local_main_process:
+if local_rank == 0:
     unet.save_pretrained('path/to/save/model')
 
 # Ensure that the WandB run is finished properly (only in main process)
-if accelerator.is_local_main_process:
+if local_rank == 0:
     wandb.finish()
