@@ -17,7 +17,7 @@ def add_extra_channel(images):
 # Define transformations
 transform = transforms.Compose([
     transforms.Pad((0, 0, 11, 0)),
-    transforms.Resize((512, 512)),
+    transforms.Resize((256, 256)),
     transforms.ToTensor(),
 ])
 
