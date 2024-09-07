@@ -19,6 +19,8 @@ WORKDIR=/home/sanisoglum/SoundscapeGenerator
 cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 
 
+export CUDA_VISIBLE_DEVICES=0,1
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
