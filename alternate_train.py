@@ -80,6 +80,9 @@ for epoch in range(num_epochs):
         # Forward pass
         try:
             outputs = unet(images, timesteps, encoder_hidden_states).sample
+            # Check the shape of the outputs to verify if we need to reshape labels
+            print(f"Outputs shape: {outputs.shape}")
+            print(f"Labels shape before: {labels.shape}")
         except RuntimeError as e:
             print(f"Out of memory during forward pass: {e}")
             torch.cuda.empty_cache()
