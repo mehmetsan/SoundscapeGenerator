@@ -68,7 +68,7 @@ for epoch in range(num_epochs):
 
     for batch in dataloader:
         images, labels = batch
-        images, labels = images.to(device), labels.to(device)  # Move data to the GPU if available
+        #images, labels = images.to(device), labels.to(device)  # Move data to the GPU if available
 
         images = add_extra_channel(images)
 
