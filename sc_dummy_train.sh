@@ -24,7 +24,7 @@ export HYDRA_FULL_ERROR=1
 export WANDB_DEBUG=true
 export WANDB_HTTP_TIMEOUT=60  # Increase timeout
 export MASTER_ADDR=$(hostname)  # Set the master address to the current node's hostname
-export MASTER_PORT=29500        # Use a specific port for inter-process communication
+export MASTER_PORT=$(shuf -i 20000-60000 -n 1)        # Use a specific port for inter-process communication
 
 # Use torchrun to launch the distributed training
 torchrun --nproc_per_node=2 alternate_train.py  # Use 2 processes (one per GPU)
