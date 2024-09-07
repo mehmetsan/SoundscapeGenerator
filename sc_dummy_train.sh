@@ -8,7 +8,7 @@
 #SBATCH --ntasks=1
 #SBATCH --partition allgroups
 #SBATCH --mem 20G
-#SBATCH --gres=gpu:a40:2
+#SBATCH --gres=gpu:a40:1
 
 # description: Slurm job to train the riffusion model with emotion tags
 # author: Mehmet Sanisoglu
@@ -23,5 +23,8 @@ export CUDA_VISIBLE_DEVICES=0,1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export HYDRA_FULL_ERROR=1
 #export CUDA_LAUNCH_BLOCKING=1
+export WANDB_DEBUG=true
+export WANDB_HTTP_TIMEOUT=60  # Increase timeout
+
 
 srun accelerate launch --main_process_port 0 alternate_train.py

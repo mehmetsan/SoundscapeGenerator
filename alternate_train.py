@@ -35,14 +35,15 @@ if local_rank == 0:
         print('WandB login successful')
         run = wandb.init(
             project="SoundscapeGenerator",
-            reinit=True  # Ensure a new run is started even if a previous one exists
+            reinit=True,  # Ensure a new run is started even if a previous one exists
+            settings=wandb.Settings(start_method="fork")  # Simplify to avoid issues with multiprocessing
         )
         print('WandB run initialized')
     except Exception as e:
         raise Exception(f"WandB login failed due to {e}")
 else:
-    # Disable WandB logging for non-main processes
     os.environ["WANDB_MODE"] = "disabled"
+
 
 # Print debugging info for all processes
 if local_rank == 0:
