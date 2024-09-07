@@ -8,8 +8,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
 accelerator = Accelerator(mixed_precision="fp16")
-print(f"Number of devices: {accelerator.num_processes}")
-print(f"Using device: {accelerator.device}")
+
 def add_extra_channel(images):
     extra_channel = torch.zeros(images.size(0), 1, images.size(2), images.size(3), device=images.device)
     return torch.cat((images, extra_channel), dim=1)
@@ -31,6 +30,8 @@ try:
 except Exception as e:
     raise Exception(f"Wandb login failed due to {e}")
 
+print(f"Number of devices: {accelerator.num_processes}")
+print(f"Using device: {accelerator.device}")
 torch.cuda.empty_cache()
 
 # Load dataset
