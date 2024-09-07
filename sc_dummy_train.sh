@@ -26,4 +26,4 @@ export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
-srun accelerate launch alternate_train.py
+srun python alternate_train.py
