@@ -16,7 +16,8 @@ def add_extra_channel(images):
 
 # Define transformations
 transform = transforms.Compose([
-    transforms.Resize((256, 256)),
+    transforms.Pad((0, 0, 11, 0)),
+    transforms.Resize((512, 512)),
     transforms.ToTensor(),
 ])
 
@@ -38,20 +39,18 @@ dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
 print('Dataset ready')
 
-#device = "cuda"
+device = "cuda"
 
 # Load the RiffusionPipeline
 pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
                                              cache_dir=model_cache_path,
-                                             resume_download=True)
+                                             resume_download=True,
+                                             )
 print('Model is loaded')
 
-#pipeline.to(device)  # Move the pipeline to the GPU if available
 
 # Assuming the pipeline has a model attribute that is trainable
 unet = pipeline.unet
-#unet = nn.DataParallel(unet)
-#unet.to(device)
 
 # Define optimizer and loss function
 optimizer = torch.optim.AdamW(unet.parameters(), lr=5e-5)
@@ -64,14 +63,14 @@ print('Started training')
 num_epochs = 10  # Set the number of epochs
 for epoch in range(num_epochs):
     print(f"Epoch: {epoch}")
-    #unet.train()  # Set the model to training mode
+    unet.train()  # Set the model to training mode
     running_loss = 0.0
 
     for batch in dataloader:
         images, labels = batch
-        #images, labels = images.to(device), labels.to(device)  # Move data to the GPU if available
+        images, labels = images.to(device), labels.to(device)  # Move data to the GPU if available
 
-        # images = add_extra_channel(images)
+        images = add_extra_channel(images)
 
         timesteps = torch.randint(0, 1000, (images.size(0),), device=accelerator.device).long()  # Example timesteps
         encoder_hidden_states = torch.randn(images.size(0), 512, device=accelerator.device)  # Example encoder hidden states

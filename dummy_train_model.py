@@ -3,13 +3,13 @@ import os
 import torch
 import torch.nn as nn
 import wandb
-from diffusers import StableDiffusionPipeline, DDPMScheduler
+from diffusers import StableDiffusionPipeline, DDPMScheduler, UNet2DConditionModel
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 
 from utils.training_utils import CustomImageDataset
 
-model_cache_dir = '/ext/sanisoglum/checkpoints/caches'
+model_cache_dir = '/Users/mehmetsanisoglu/Desktop/SoundscapeGenerator/checkpoints'
 
 
 if not os.path.exists('categorized_spectrograms'):
@@ -17,13 +17,6 @@ if not os.path.exists('categorized_spectrograms'):
 else:
 
     try:
-        # Logging in to wandb
-        try:
-            wandb.login(key="0cab68fc9cc47efc6cdc61d3d97537d8690e0379")
-            print('Wandb login successful')
-        except Exception as e:
-            raise Exception(f"Wandb login failed due to {e}")
-
         # Model loading
         try:
             if os.path.exists(os.path.join(model_cache_dir, 'models--riffusion--riffusion-model-v1')):
@@ -31,7 +24,12 @@ else:
             else:
                 print('Downloading model from scratch')
                 os.makedirs(model_cache_dir, exist_ok=True)
+            unet = UNet2DConditionModel.from_pretrained("riffusion/riffusion-model-v1",
+                                                        torch_dtype=torch.float16, subfolder="unet",
+                                                        in_channels=9, low_cpu_mem_usage=False,
+                                                        ignore_mismatched_sizes=True)
             pipeline = StableDiffusionPipeline.from_pretrained("riffusion/riffusion-model-v1",
+                                                               unet=unet,
                                                                cache_dir=model_cache_dir,
                                                                resume_download=True)
 
