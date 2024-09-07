@@ -51,7 +51,6 @@ print('Model is loaded')
 
 # Assuming the pipeline has a model attribute that is trainable
 unet = pipeline.unet
-unet.gradient_checkpointing_enable()
 
 # Define optimizer and loss function
 optimizer = torch.optim.AdamW(unet.parameters(), lr=5e-5)
