@@ -45,7 +45,7 @@ torch.cuda.empty_cache()
 dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transform)
 
 # Create DataLoader
-dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
 print('Dataset ready')
 
@@ -68,6 +68,7 @@ criterion = torch.nn.CrossEntropyLoss()
 
 unet, optimizer, dataloader = accelerator.prepare(unet, optimizer, dataloader)
 
+
 print('Started training')
 # Training loop
 num_epochs = 10  # Set the number of epochs
@@ -82,9 +83,17 @@ for epoch in range(num_epochs):
 
         images = add_extra_channel(images)
 
+
         timesteps = torch.randint(0, 1000, (images.size(0),), device=accelerator.device).long()  # Example timesteps
         encoder_hidden_states = torch.randn(images.size(0), 1, 768, device=accelerator.device)  # Now (4, 1, 768)
         optimizer.zero_grad()  # Zero the parameter gradients
+
+        print(f"unet device: {next(unet.parameters()).device}")
+        print(f"Images device: {images.device}")
+        print(f"Timesteps device: {timesteps.device}")
+        print(f"Encoder hidden states device: {encoder_hidden_states.device}")
+
+
         outputs = unet(images, timesteps, encoder_hidden_states)  # Forward pass
         loss = criterion(outputs, labels)  # Compute the loss
         accelerator.backward(loss)
