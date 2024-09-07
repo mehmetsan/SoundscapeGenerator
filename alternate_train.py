@@ -1,3 +1,5 @@
+import os
+
 import torch
 import wandb
 import torch.nn as nn
@@ -7,7 +9,6 @@ from utils.riffusion_pipeline import RiffusionPipeline
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
-accelerator = Accelerator(mixed_precision="fp16")
 
 def add_extra_channel(images):
     extra_channel = torch.zeros(images.size(0), 1, images.size(2), images.size(3), device=images.device)
@@ -30,6 +31,13 @@ try:
 except Exception as e:
     raise Exception(f"Wandb login failed due to {e}")
 
+accelerator = Accelerator(mixed_precision="fp16", device_placement=True)
+
+if accelerator.num_processes > 1:
+    print("multiple gpus")
+    torch.distributed.init_process_group(backend='nccl')
+
+print(f"CUDA_VISIBLE_DEVICES: {os.environ['CUDA_VISIBLE_DEVICES']}")
 print(f"Number of devices: {accelerator.num_processes}")
 print(f"Using device: {accelerator.device}")
 torch.cuda.empty_cache()
@@ -84,7 +92,6 @@ for epoch in range(num_epochs):
 
         wandb.log({"loss": loss.item()})
 
-        loss.backward()  # Backward pass
         optimizer.step()  # Optimize the parameters
 
         running_loss += loss.item()
