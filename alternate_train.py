@@ -24,13 +24,16 @@ transform = transforms.Compose([
 # Initialize the accelerator
 accelerator = Accelerator(mixed_precision="fp16", device_placement=True)
 
-# Only initialize wandb in the main process (rank 0)
+print(accelerator.is_local_main_process)
+
+# Initialize wandb only in the main process (rank 0)
 if accelerator.is_local_main_process:
     try:
         wandb.login(key="0cab68fc9cc47efc6cdc61d3d97537d8690e0379")
         print('Wandb login successful')
         run = wandb.init(
             project="SoundscapeGenerator",
+            reinit=True  # Ensure a new run is started even if a previous one exists
         )
     except Exception as e:
         raise Exception(f"Wandb login failed due to {e}")
@@ -110,3 +113,7 @@ if accelerator.is_local_main_process:
 # Save the trained model (only in the main process)
 if accelerator.is_local_main_process:
     unet.save_pretrained('path/to/save/model')
+
+# Ensure that the WandB run is finished properly (only in main process)
+if accelerator.is_local_main_process:
+    wandb.finish()
