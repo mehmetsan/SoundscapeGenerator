@@ -24,19 +24,22 @@ transform = transforms.Compose([
 # Initialize the accelerator
 accelerator = Accelerator(mixed_precision="fp16", device_placement=True)
 
-print(accelerator.is_local_main_process)
-
-# Initialize wandb only in the main process (rank 0)
+# Set up WandB
 if accelerator.is_local_main_process:
     try:
+        print('Attempting to log into WandB...')
         wandb.login(key="0cab68fc9cc47efc6cdc61d3d97537d8690e0379")
-        print('Wandb login successful')
+        print('WandB login successful')
         run = wandb.init(
             project="SoundscapeGenerator",
             reinit=True  # Ensure a new run is started even if a previous one exists
         )
+        print('WandB run initialized')
     except Exception as e:
-        raise Exception(f"Wandb login failed due to {e}")
+        raise Exception(f"WandB login failed due to {e}")
+else:
+    # Disable WandB logging for non-main processes
+    os.environ["WANDB_MODE"] = "disabled"
 
 # Print debugging info for all processes
 if accelerator.is_local_main_process:
