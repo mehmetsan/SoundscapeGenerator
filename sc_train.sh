@@ -22,4 +22,4 @@ cd "$WORKDIR" || exit 0  # Change to the specified directory
 
 export CUDA_LAUNCH_BLOCKING=1
 
-srun python -m torch.distributed.launch --nproc_per_node=2 --use_env train_model.py
+srun --verbose python -m torch.distributed.launch --nproc_per_node=2 --use_env train_model.py
