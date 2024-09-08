@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name train_riffusion_model
+#SBATCH --job-name dummy_train_riffusion_model
 #SBATCH --output log/%j_out.txt
 #SBATCH --error log/%j_err.txt
 #SBATCH --mail-user mehmet.sanisoglu@studenti.unipd.it
@@ -7,8 +7,8 @@
 #SBATCH --time 2-20:00:00
 #SBATCH --ntasks 1
 #SBATCH --partition allgroups
-#SBATCH --mem 36G
-#SBATCH --gres=gpu:rtx:2
+#SBATCH --mem 20G
+#SBATCH --gres=gpu:a40:1
 
 # description: Slurm job to train the riffusion model with emotion tags
 # author: Mehmet Sanisoglu
@@ -19,7 +19,6 @@ WORKDIR=/home/sanisoglum/SoundscapeGenerator
 cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 
 
-export HYDRA_FULL_ERROR=1
 export CUDA_LAUNCH_BLOCKING=1
 
 srun python train_model.py

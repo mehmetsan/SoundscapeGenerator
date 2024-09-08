@@ -23,7 +23,7 @@ else:
             song_id = row['song_id']
             spectrogram_id = row['spectrogram_id']
 
-            target_path = f"./categorized_spectrograms/{emotion}"
+            target_path = f"./categorized_spectrograms/{emotion}_sndscp"
             os.makedirs(target_path, exist_ok=True)
 
             original_file_path = Path(f"./spectrograms/{song_id}/{song_id}_{spectrogram_id}.png")
