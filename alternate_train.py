@@ -104,7 +104,6 @@ for epoch in range(num_epochs):
         scaler.update()
 
         # Backward pass and optimization
-        loss.backward()
         if (batch_idx + 1) % accumulation_steps == 0:
             optimizer.step()
             optimizer.zero_grad()  # Clear gradients after updating
