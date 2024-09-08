@@ -83,18 +83,13 @@ for epoch in range(num_epochs):
 
         # Get emotion embeddings and concatenate with encoder hidden states
         emotion_embedding = emotion_embedding_layer(labels)
-        encoder_hidden_states_with_emotion = torch.cat((encoder_hidden_states, emotion_embedding.unsqueeze(1)), dim=2)
+        encoder_hidden_states_with_emotion = encoder_hidden_states + emotion_embedding.unsqueeze(1)
 
         # Zero the gradients
         optimizer.zero_grad()
 
         # Forward pass
-        try:
-            outputs = unet(images, timesteps, encoder_hidden_states_with_emotion).sample
-        except RuntimeError as e:
-            print(f"Out of memory during forward pass: {e}")
-            torch.cuda.empty_cache()
-            continue  # Skip this batch if out of memory
+        outputs = unet(images, timesteps, encoder_hidden_states_with_emotion).sample
 
         # Compute the loss (denoising loss)
         loss = criterion(outputs, images)
