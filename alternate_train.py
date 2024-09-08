@@ -29,7 +29,7 @@ def add_extra_channel(images):
 # Define transformations
 transform = transforms.Compose([
     transforms.Pad((0, 0, 11, 0)),
-    transforms.Resize((256, 256)),
+    transforms.Resize((360, 360)),
     transforms.ToTensor(),
 ])
 
@@ -40,7 +40,7 @@ try:
 except Exception as e:
     raise Exception(f"Wandb login failed due to {e}")
 
-BATCH_SIZE = 2
+BATCH_SIZE = 1
 
 # Load dataset
 dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transform)
