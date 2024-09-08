@@ -35,7 +35,7 @@ transform = transforms.Compose([
 
 # Initialize WandB
 try:
-    wandb.login(key="your_wandb_key_here")
+    wandb.login(key="0cab68fc9cc47efc6cdc61d3d97537d8690e0379")
     run = wandb.init(project="SoundscapeGenerator")
 except Exception as e:
     raise Exception(f"Wandb login failed due to {e}")
