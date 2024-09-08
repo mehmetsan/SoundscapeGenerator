@@ -81,7 +81,8 @@ def train_model(rank, world_size):
         dataset = SafeImageFolder(root='categorized_spectrograms', transform=transform)
 
         # Use DistributedSampler to split data across GPUs
-        sampler = DistributedSampler(dataset, num_replicas=world_size, rank=rank)
+        sampler = DistributedSampler(dataset, num_replicas=world_size, rank=rank, shuffle=True)
+
 
         # Create DataLoader that skips corrupted images
         dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=sampler, collate_fn=collate_fn)
@@ -95,6 +96,8 @@ def train_model(rank, world_size):
         # Move the model to the correct device and wrap it with DDP
         unet.to(device)
         unet = DDP(unet, device_ids=[rank])
+
+        dist.barrier()
 
         # Define optimizer and loss function
         optimizer = torch.optim.AdamW(unet.parameters(), lr=5e-5)
@@ -115,6 +118,7 @@ def train_model(rank, world_size):
                 for batch_idx, batch in enumerate(dataloader):
                     if batch is None:  # Skip empty batches caused by filtering out corrupted images
                         continue
+                    print(f"Rank {rank} is processing batch {batch_idx} with data indices: {sampler.indices[:10]}")
 
                     images, labels = batch
 
@@ -150,6 +154,7 @@ def train_model(rank, world_size):
                         optimizer.zero_grad()
 
                     running_loss += loss.item()
+                    torch.cuda.empty_cache()
 
                 if rank == 0:
                     wandb.log({"loss": running_loss / len(dataloader)})
