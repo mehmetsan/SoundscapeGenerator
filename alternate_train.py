@@ -9,6 +9,18 @@ from torchvision import datasets, transforms
 # Set the device to CUDA if available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
+# Emotion embedding layer
+class EmotionEmbedding(nn.Module):
+    def __init__(self, num_classes=12, embedding_dim=768):
+        super(EmotionEmbedding, self).__init__()
+        self.embedding = nn.Embedding(num_classes, embedding_dim)
+
+    def forward(self, labels):
+        return self.embedding(labels)
+
+
+# Add an extra channel
 def add_extra_channel(images):
     extra_channel = torch.zeros(images.size(0), 1, images.size(2), images.size(3), device=images.device)
     return torch.cat((images, extra_channel), dim=1)
@@ -23,8 +35,7 @@ transform = transforms.Compose([
 
 # Initialize WandB
 try:
-    wandb.login(key="0cab68fc9cc47efc6cdc61d3d97537d8690e0379")
-    print('Wandb login successful')
+    wandb.login(key="your_wandb_key_here")
     run = wandb.init(project="SoundscapeGenerator")
 except Exception as e:
     raise Exception(f"Wandb login failed due to {e}")
@@ -35,26 +46,22 @@ dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transf
 # Create DataLoader
 dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
-print('Dataset ready')
-
 # Load the RiffusionPipeline
 pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
                                              cache_dir=model_cache_path,
                                              resume_download=True)
-print('Model is loaded')
-
-# Assuming the pipeline has a model attribute that is trainable
 unet = pipeline.unet
 unet.to(device)  # Move the model to GPU
 
 # Define optimizer and loss function
 optimizer = torch.optim.AdamW(unet.parameters(), lr=5e-5)
-criterion = torch.nn.CrossEntropyLoss()
+criterion = nn.MSELoss()
 
-print('Started training')
+# Emotion embedding layer
+emotion_embedding_layer = EmotionEmbedding(num_classes=12).to(device)
 
 # Training loop
-num_epochs = 10  # Set the number of epochs
+num_epochs = 10
 for epoch in range(num_epochs):
     print(f"Epoch: {epoch}")
     unet.train()  # Set the model to training mode
@@ -74,21 +81,23 @@ for epoch in range(num_epochs):
         timesteps = torch.randint(0, 1000, (images.size(0),), device=device).long()
         encoder_hidden_states = torch.randn(images.size(0), 1, 768, device=device)
 
+        # Get emotion embeddings and concatenate with encoder hidden states
+        emotion_embedding = emotion_embedding_layer(labels)
+        encoder_hidden_states_with_emotion = torch.cat((encoder_hidden_states, emotion_embedding.unsqueeze(1)), dim=2)
+
         # Zero the gradients
         optimizer.zero_grad()
 
         # Forward pass
         try:
-            outputs = unet(images, timesteps, encoder_hidden_states).sample
-            outputs = torch.mean(outputs, dim=(2, 3))  # Average over the spatial dimensions (height, width)
-            print(f"Reduced Outputs shape for classification: {outputs.shape}")
+            outputs = unet(images, timesteps, encoder_hidden_states_with_emotion).sample
         except RuntimeError as e:
             print(f"Out of memory during forward pass: {e}")
             torch.cuda.empty_cache()
             continue  # Skip this batch if out of memory
 
-        # Compute the loss
-        loss = criterion(outputs, labels)
+        # Compute the loss (denoising loss)
+        loss = criterion(outputs, images)
 
         # Backward pass and optimization
         loss.backward()
@@ -103,7 +112,7 @@ for epoch in range(num_epochs):
         torch.cuda.empty_cache()
 
     # Print the average loss for this epoch
-    print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(dataloader)}")
+    print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {running_loss / len(dataloader)}")
 
 print('Finished training')
 
