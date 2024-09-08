@@ -10,7 +10,7 @@
 #SBATCH --mem 16G
 #SBATCH --gres=gpu:rtx
 
-mkdir /ext/sanisoglum
-mkdir /ext/sanisoglum/saved
+ls /ext/
+ls /ext/sanisoglum/
 
 
