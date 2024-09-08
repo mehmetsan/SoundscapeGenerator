@@ -40,7 +40,7 @@ try:
 except Exception as e:
     raise Exception(f"Wandb login failed due to {e}")
 
-BATCH_SIZE = 2
+BATCH_SIZE = 1
 
 # Load dataset
 dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transform)
