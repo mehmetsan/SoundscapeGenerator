@@ -20,6 +20,7 @@ source /home/sanisoglum/miniconda3/bin/activate my_env
 WORKDIR=/home/sanisoglum/SoundscapeGenerator
 cd "$WORKDIR" || exit 0  # Change to the specified directory
 
+export NCCL_SOCKET_IFNAME=eth0  # Or the correct network interface for your system
 export NCCL_DEBUG=INFO
 export CUDA_LAUNCH_BLOCKING=1
 export NCCL_P2P_LEVEL=NVL
