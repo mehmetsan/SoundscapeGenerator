@@ -5,21 +5,20 @@
 #SBATCH --mail-user mehmet.sanisoglu@studenti.unipd.it
 #SBATCH --mail-type ALL
 #SBATCH --time 2-20:00:00
-#SBATCH --ntasks 1  # Keep 1 task per node
-#SBATCH --gres=gpu:a40:2  # Request 2 GPUs per node
+#SBATCH --ntasks 1  # One task per node
+#SBATCH --gpus-per-node=2  # Use 2 GPUs per node
+#SBATCH --gres=gpu:a40:2  # Request 2 A40 GPUs
 #SBATCH --partition allgroups
 #SBATCH --mem 20G
-#SBATCH --gres=gpu:a40:2
-
-# description: Slurm job to train the riffusion model with emotion tags
-# author: Mehmet Sanisoglu
-
 
 source /home/sanisoglum/miniconda3/bin/activate my_env
 
 WORKDIR=/home/sanisoglum/SoundscapeGenerator
-cd "$WORKDIR" || exit 0  # Change to the specified directory
+cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 
 export CUDA_LAUNCH_BLOCKING=1
+export NCCL_DEBUG=INFO  # Enable NCCL debugging info
+export NCCL_P2P_LEVEL=NVL  # Use local P2P communication only (intra-node)
+# export NCCL_SOCKET_IFNAME=eth0  # Uncomment and set your network interface if needed
 
-srun --verbose python -m torch.distributed.launch --nproc_per_node=2 --use_env train_model.py
+srun python -m torch.distributed.launch --nproc_per_node=2 --use_env train_model.py
