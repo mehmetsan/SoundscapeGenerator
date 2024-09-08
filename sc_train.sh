@@ -6,7 +6,7 @@
 #SBATCH --mail-type ALL
 #SBATCH --time 2-20:00:00
 #SBATCH --ntasks 1  # Keep 1 task per node
-#SBATCH --gpus-per-node=2  # Request 2 GPUs per node
+#SBATCH --gres=gpu:a40:2  # Request 2 GPUs per node
 #SBATCH --partition allgroups
 #SBATCH --mem 20G
 #SBATCH --gres=gpu:a40:2
