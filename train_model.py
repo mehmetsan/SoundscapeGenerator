@@ -23,6 +23,7 @@ class EmotionEmbedding(nn.Module):
         return self.embedding(labels)
 
 
+
 # Custom dataset to handle corrupted images
 class SafeImageFolder(datasets.ImageFolder):
     def __getitem__(self, index):
