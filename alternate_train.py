@@ -29,7 +29,7 @@ def add_extra_channel(images):
 # Define transformations
 transform = transforms.Compose([
     transforms.Pad((0, 0, 11, 0)),
-    transforms.Resize((256, 256)),
+    transforms.Resize((512, 512)),
     transforms.ToTensor(),
 ])
 
@@ -64,6 +64,9 @@ emotion_embedding_layer = EmotionEmbedding(num_classes=12).to(device)
 num_epochs = 2
 total_batches = len(dataloader)
 
+scaler = torch.cuda.amp.GradScaler()
+accumulation_steps = 2
+
 for epoch in range(num_epochs):
     print(f"Epoch: {epoch}")
     unet.train()  # Set the model to training mode
@@ -90,15 +93,21 @@ for epoch in range(num_epochs):
         # Zero the gradients
         optimizer.zero_grad()
 
-        # Forward pass
-        outputs = unet(images, timesteps, encoder_hidden_states_with_emotion).sample
+        with torch.cuda.amp.autocast():
+            # Forward pass
+            outputs = unet(images, timesteps, encoder_hidden_states_with_emotion).sample
+            # Compute the loss (denoising loss)
+            loss = criterion(outputs, images)
 
-        # Compute the loss (denoising loss)
-        loss = criterion(outputs, images)
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
         # Backward pass and optimization
         loss.backward()
-        optimizer.step()
+        if (batch_idx + 1) % accumulation_steps == 0:
+            optimizer.step()
+            optimizer.zero_grad()  # Clear gradients after updating
 
         # Log loss with WandB
         wandb.log({"loss": loss.item()})
