@@ -1,7 +1,7 @@
 import torch
 import wandb
 import torch.nn as nn
-from env_variables import model_cache_path
+from env_variables import model_cache_path, model_save_path
 from utils.riffusion_pipeline import RiffusionPipeline
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
@@ -44,7 +44,7 @@ except Exception as e:
 dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transform)
 
 # Create DataLoader
-dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
 
 # Load the RiffusionPipeline
 pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
@@ -61,7 +61,7 @@ criterion = nn.MSELoss()
 emotion_embedding_layer = EmotionEmbedding(num_classes=12).to(device)
 
 # Training loop
-num_epochs = 2
+num_epochs = 1
 total_batches = len(dataloader)
 
 scaler = torch.cuda.amp.GradScaler()
@@ -125,4 +125,4 @@ for epoch in range(num_epochs):
 print('Finished training')
 
 # Save the trained model
-unet.save_pretrained('path/to/save/model')
+unet.save_pretrained(model_save_path)
