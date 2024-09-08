@@ -40,11 +40,13 @@ try:
 except Exception as e:
     raise Exception(f"Wandb login failed due to {e}")
 
+BATCH_SIZE = 2
+
 # Load dataset
 dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transform)
 
 # Create DataLoader
-dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # Load the RiffusionPipeline
 pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
