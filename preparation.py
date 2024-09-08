@@ -36,12 +36,15 @@ def download_and_extract(url, download_directory):
     with zipfile.ZipFile(f"{download_directory}/file.zip", 'r') as zip_ref:
         zip_ref.extractall(download_directory)
 
+    print(f"Extracted {path_suffix}")
     # Delete the zip file
     os.remove(f"{download_directory}/file.zip")
+    print(f"Removed {path_suffix} file.zip")
 
 
 os.makedirs('deam_data', exist_ok=True)
 target_directory = 'deam_data'
+
 
 download_and_extract(audio_url, target_directory)
 download_and_extract(annotations_url, target_directory)

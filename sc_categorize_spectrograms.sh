@@ -24,4 +24,5 @@ export CUDA_LAUNCH_BLOCKING=1
 srun python preparation.py
 srun python create_spectrograms.py
 srun python prepare_dataset.py
+rm -r deam_data
 srun python categorize_spectrograms.py
