@@ -61,13 +61,15 @@ criterion = nn.MSELoss()
 emotion_embedding_layer = EmotionEmbedding(num_classes=12).to(device)
 
 # Training loop
-num_epochs = 10
+num_epochs = 2
+total_batches = len(dataloader)
+
 for epoch in range(num_epochs):
     print(f"Epoch: {epoch}")
     unet.train()  # Set the model to training mode
     running_loss = 0.0
 
-    for batch in dataloader:
+    for batch_idx, batch in enumerate(dataloader):
         images, labels = batch
 
         # Move the batch to the GPU
@@ -102,6 +104,9 @@ for epoch in range(num_epochs):
         wandb.log({"loss": loss.item()})
 
         running_loss += loss.item()
+
+        # Print the current batch number and total batches
+        print(f"Batch {batch_idx + 1}/{total_batches}, Loss: {loss.item()}")
 
         # Clear cached memory to avoid OOM
         torch.cuda.empty_cache()
