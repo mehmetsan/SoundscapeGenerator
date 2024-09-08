@@ -5,6 +5,9 @@ from env_variables import model_cache_path, model_save_path
 from utils.riffusion_pipeline import RiffusionPipeline
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
 
 # Set the device to CUDA if available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -18,6 +21,16 @@ class EmotionEmbedding(nn.Module):
 
     def forward(self, labels):
         return self.embedding(labels)
+
+
+# Custom dataset to handle corrupted images
+class SafeImageFolder(datasets.ImageFolder):
+    def __getitem__(self, index):
+        try:
+            return super(SafeImageFolder, self).__getitem__(index)
+        except (OSError, IOError) as e:
+            print(f"Skipping corrupted image at index {index}: {e}")
+            return None
 
 
 # Add an extra channel
@@ -42,11 +55,17 @@ except Exception as e:
 
 BATCH_SIZE = 1
 
-# Load dataset
-dataset = datasets.ImageFolder(root='categorized_spectrograms', transform=transform)
+# Load dataset with SafeImageFolder to handle corrupted images
+dataset = SafeImageFolder(root='categorized_spectrograms', transform=transform)
 
-# Create DataLoader
-dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+# Create DataLoader that skips corrupted images
+def collate_fn(batch):
+    batch = list(filter(lambda x: x is not None, batch))  # Filter out None entries
+    if len(batch) == 0:
+        return None
+    return torch.utils.data.dataloader.default_collate(batch)
+
+dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_fn)
 
 # Load the RiffusionPipeline
 pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
@@ -75,6 +94,8 @@ for epoch in range(num_epochs):
     running_loss = 0.0
 
     for batch_idx, batch in enumerate(dataloader):
+        if batch is None:
+            continue  # Skip the batch if it was filtered out due to corrupted images
         images, labels = batch
 
         # Move the batch to the GPU
