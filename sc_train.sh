@@ -17,6 +17,8 @@ cd "$WORKDIR" || exit 0  # Change to the specified directory
 
 export NCCL_DEBUG=INFO
 export NCCL_P2P_LEVEL=NVL  # Limit to intra-node communication
-# export NCCL_SOCKET_IFNAME=eth0  # Leave this out for now to see if intra-node works without it
+export NCCL_IB_DISABLE=1  # Disable InfiniBand
+export NCCL_SHM_DISABLE=0  # Enable shared memory communication
+export NCCL_NET_GDR_LEVEL=0  # Disable GPUDirect RDMA (optional)
 
 srun python -m torch.distributed.launch --nproc_per_node=2 --use_env train_model.py
