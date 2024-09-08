@@ -1,16 +1,15 @@
 import torch
-import wandb
+import torch.distributed as dist
+import torch.multiprocessing as mp
 import torch.nn as nn
-from env_variables import model_cache_path, model_save_path
-from utils.riffusion_pipeline import RiffusionPipeline
-from torch.utils.data import DataLoader
+import wandb
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data import DataLoader, DistributedSampler
 from torchvision import datasets, transforms
 from PIL import ImageFile
+from env_variables import model_cache_path, model_save_path
+from utils.riffusion_pipeline import RiffusionPipeline
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-
-
-# Set the device to CUDA if available
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # Emotion embedding layer
@@ -21,7 +20,6 @@ class EmotionEmbedding(nn.Module):
 
     def forward(self, labels):
         return self.embedding(labels)
-
 
 
 # Custom dataset to handle corrupted images
@@ -47,106 +45,131 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-# Initialize WandB
-try:
-    wandb.login(key="0cab68fc9cc47efc6cdc61d3d97537d8690e0379")
-    run = wandb.init(project="SoundscapeGenerator")
-except Exception as e:
-    raise Exception(f"Wandb login failed due to {e}")
 
-BATCH_SIZE = 1
+# Function to initialize the distributed process
+def setup(rank, world_size):
+    dist.init_process_group(backend='nccl', init_method='env://', world_size=world_size, rank=rank)
 
-# Load dataset with SafeImageFolder to handle corrupted images
-dataset = SafeImageFolder(root='categorized_spectrograms', transform=transform)
 
-# Create DataLoader that skips corrupted images
+def cleanup():
+    dist.destroy_process_group()
+
+
+# Collate function for skipping None batches (from corrupted images)
 def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))  # Filter out None entries
     if len(batch) == 0:
         return None
     return torch.utils.data.dataloader.default_collate(batch)
 
-dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_fn)
 
-# Load the RiffusionPipeline
-pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
-                                             cache_dir=model_cache_path,
-                                             resume_download=True)
-unet = pipeline.unet
-unet.to(device)  # Move the model to GPU
+def train_model(rank, world_size):
+    setup(rank, world_size)
 
-# Define optimizer and loss function
-optimizer = torch.optim.AdamW(unet.parameters(), lr=5e-5)
-criterion = nn.MSELoss()
+    # Set the device for this process
+    device = torch.device(f'cuda:{rank}')
 
-# Emotion embedding layer
-emotion_embedding_layer = EmotionEmbedding(num_classes=12).to(device)
+    # Initialize WandB only on the main process (rank 0)
+    if rank == 0:
+        try:
+            wandb.login(key="0cab68fc9cc47efc6cdc61d3d97537d8690e0379")
+            run = wandb.init(project="SoundscapeGenerator")
+        except Exception as e:
+            raise Exception(f"Wandb login failed due to {e}")
 
-# Training loop
-num_epochs = 1
-total_batches = len(dataloader)
+    BATCH_SIZE = 1
+    EPOCHS = 1
 
-scaler = torch.cuda.amp.GradScaler()
-accumulation_steps = 2
+    # Load dataset with SafeImageFolder to handle corrupted images
+    dataset = SafeImageFolder(root='categorized_spectrograms', transform=transform)
 
-for epoch in range(num_epochs):
-    print(f"Epoch: {epoch}")
-    unet.train()  # Set the model to training mode
-    running_loss = 0.0
+    # Use DistributedSampler to split data across GPUs
+    sampler = DistributedSampler(dataset, num_replicas=world_size, rank=rank)
 
-    for batch_idx, batch in enumerate(dataloader):
-        if batch is None:
-            continue  # Skip the batch if it was filtered out due to corrupted images
-        images, labels = batch
+    # Create DataLoader that skips corrupted images
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=sampler, collate_fn=collate_fn)
 
-        # Move the batch to the GPU
-        images = images.to(device)
-        labels = labels.to(device)
+    # Load the RiffusionPipeline
+    pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
+                                                 cache_dir=model_cache_path,
+                                                 resume_download=True)
+    unet = pipeline.unet
 
-        # Add the extra channel
-        images = add_extra_channel(images)
+    # Move the model to the correct device and wrap it with DDP
+    unet.to(device)
+    unet = DDP(unet, device_ids=[rank])
 
-        # Generate the timesteps and encoder hidden states
-        timesteps = torch.randint(0, 1000, (images.size(0),), device=device).long()
-        encoder_hidden_states = torch.randn(images.size(0), 1, 768, device=device)
+    # Define optimizer and loss function
+    optimizer = torch.optim.AdamW(unet.parameters(), lr=5e-5)
+    criterion = nn.MSELoss()
 
-        # Get emotion embeddings and concatenate with encoder hidden states
-        emotion_embedding = emotion_embedding_layer(labels)
-        encoder_hidden_states_with_emotion = encoder_hidden_states + emotion_embedding.unsqueeze(1)
+    # Emotion embedding layer
+    emotion_embedding_layer = EmotionEmbedding(num_classes=12).to(device)
 
-        # Zero the gradients
-        optimizer.zero_grad()
+    # Training loop
+    scaler = torch.cuda.amp.GradScaler()
+    accumulation_steps = 2
 
-        with torch.cuda.amp.autocast():
-            # Forward pass
-            outputs = unet(images, timesteps, encoder_hidden_states_with_emotion).sample
-            # Compute the loss (denoising loss)
-            loss = criterion(outputs, images)
+    for epoch in range(EPOCHS):
+        unet.train()
+        running_loss = 0.0
 
-        scaler.scale(loss).backward()
-        scaler.step(optimizer)
-        scaler.update()
+        for batch_idx, batch in enumerate(dataloader):
+            if batch is None:  # Skip empty batches caused by filtering out corrupted images
+                continue
 
-        # Backward pass and optimization
-        if (batch_idx + 1) % accumulation_steps == 0:
-            optimizer.step()
-            optimizer.zero_grad()  # Clear gradients after updating
+            images, labels = batch
 
-        # Log loss with WandB
-        wandb.log({"loss": loss.item()})
+            # Move the batch to the GPU
+            images = images.to(device)
+            labels = labels.to(device)
 
-        running_loss += loss.item()
+            # Add the extra channel
+            images = add_extra_channel(images)
 
-        # Print the current batch number and total batches
-        print(f"Batch {batch_idx + 1}/{total_batches}, Loss: {loss.item()}")
+            # Generate the timesteps and encoder hidden states
+            timesteps = torch.randint(0, 1000, (images.size(0),), device=device).long()
+            encoder_hidden_states = torch.randn(images.size(0), 1, 768, device=device)
 
-        # Clear cached memory to avoid OOM
-        torch.cuda.empty_cache()
+            # Get emotion embeddings and concatenate with encoder hidden states
+            emotion_embedding = emotion_embedding_layer(labels)
+            encoder_hidden_states_with_emotion = encoder_hidden_states + emotion_embedding.unsqueeze(1)
 
-    # Print the average loss for this epoch
-    print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {running_loss / len(dataloader)}")
+            # Zero the gradients
+            optimizer.zero_grad()
 
-print('Finished training')
+            with torch.cuda.amp.autocast():
+                # Forward pass
+                outputs = unet(images, timesteps, encoder_hidden_states_with_emotion).sample
+                # Compute the loss (denoising loss)
+                loss = criterion(outputs, images)
 
-# Save the trained model
-unet.save_pretrained(model_save_path)
+            scaler.scale(loss).backward()
+
+            if (batch_idx + 1) % accumulation_steps == 0:
+                scaler.step(optimizer)
+                scaler.update()
+                optimizer.zero_grad()
+
+            running_loss += loss.item()
+
+        if rank == 0:
+            wandb.log({"loss": running_loss / len(dataloader)})
+
+    # Save the trained model (only rank 0)
+    if rank == 0:
+        unet.module.save_pretrained(model_save_path)
+
+    cleanup()
+
+
+def main():
+    world_size = torch.cuda.device_count()
+    mp.spawn(train_model,
+             args=(world_size,),
+             nprocs=world_size,
+             join=True)
+
+
+if __name__ == "__main__":
+    main()
