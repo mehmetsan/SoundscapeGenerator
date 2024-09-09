@@ -9,4 +9,5 @@
 #SBATCH --partition allgroups
 #SBATCH --mem 10G
 
-scp -r /ext/sanisoglum/saved/models--riffusion--riffusion-model-v1 mehmetsanisoglu@192.168.1.4:/Users/mehmetsanisoglu/Desktop/files
+scp -r /ext/sanisoglum/saved/models--riffusion--riffusion-model-v1 -P 2222 localhost:/Users/mehmetsanisoglu/Desktop/files
+
