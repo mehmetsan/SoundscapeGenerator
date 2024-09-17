@@ -10,10 +10,9 @@
 #SBATCH --mem 16G
 #SBATCH --gres=gpu:rtx
 
-ls /ext/
 echo ---
 ls /ext/sanisoglum/
 echo ---
-ls /ext/sanisoglum/saved
+ls -a /ext/sanisoglum/saved
 
 
