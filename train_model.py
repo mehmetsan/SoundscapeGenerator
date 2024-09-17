@@ -152,11 +152,20 @@ print('Finished training')
 
 os.makedirs(model_save_path, exist_ok=True)
 # Save the trained model
-unet.save_pretrained(model_save_path)
+try:
+    unet.save_pretrained(model_save_path)
+
+except Exception as e:
+    print(f"There was an error during saving the model: {e}")
+    # Save the model using torch.save()
+    try:
+        torch.save(unet.state_dict(), os.path.join(model_save_path, 'unet_fine_tuned.pth'))
+    except Exception as e:
+        print(f"Trying alternate saving failed due to {e}")
 
 try:
     artifact = wandb.Artifact("riffusion_fine_tuned", type="model")
     artifact.add_file(model_save_path)
     run.log_artifact(artifact)
-except:
-    print("Couldn't send to wandb")
+except Exception as e:
+    print(f"Couldn't send to wandb due to: {e}")
