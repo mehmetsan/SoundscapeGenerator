@@ -154,6 +154,9 @@ os.makedirs(model_save_path, exist_ok=True)
 # Save the trained model
 try:
     unet.save_pretrained(model_save_path)
+    print("saved")
+    torch.save(unet.state_dict(), os.path.join(model_save_path, 'unet_fine_tuned.pth'))
+    print("saved again")
 
 except Exception as e:
     print(f"There was an error during saving the model: {e}")
