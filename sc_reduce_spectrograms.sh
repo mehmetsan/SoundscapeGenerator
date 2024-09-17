@@ -8,7 +8,7 @@
 #SBATCH --ntasks 1
 #SBATCH --partition allgroups
 #SBATCH --mem 16G
-#SBATCH --gres=gpu:rtx:2
+#SBATCH --gres=gpu:rtx:1
 
 # description: Slurm job to download or verify loading the riffusion model checkpoint
 # author: Mehmet Sanisoglu
@@ -18,7 +18,6 @@ source /home/sanisoglum/miniconda3/bin/activate my_env
 WORKDIR=/home/sanisoglum/SoundscapeGenerator
 cd "$WORKDIR" || exit 0  # Create and change to the specified directory
 
-export CUDA_LAUNCH_BLOCKING=1
 
-srun python load_download_model.py
+srun python reduce_spectrograms.py
 
