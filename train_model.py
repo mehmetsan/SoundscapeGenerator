@@ -1,3 +1,5 @@
+import os
+
 import torch
 import wandb
 import torch.nn as nn
@@ -148,5 +150,13 @@ for epoch in range(num_epochs):
 
 print('Finished training')
 
+os.makedirs(model_save_path, exist_ok=True)
 # Save the trained model
 unet.save_pretrained(model_save_path)
+
+try:
+    artifact = wandb.Artifact("riffusion_fine_tuned", type="model")
+    artifact.add_file(model_save_path)
+    run.log_artifact(artifact)
+except:
+    print("Couldn't send to wandb")
