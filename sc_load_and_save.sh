@@ -8,7 +8,7 @@
 #SBATCH --ntasks 1
 #SBATCH --partition allgroups
 #SBATCH --mem 16G
-#SBATCH --gres=gpu:rtx
+#SBATCH --gres=gpu:a40:1
 
 source /home/sanisoglum/miniconda3/bin/activate my_env
 
