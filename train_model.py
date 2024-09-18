@@ -158,6 +158,11 @@ try:
     torch.save(unet.state_dict(), os.path.join(model_save_path, 'unet_fine_tuned.pth'))
     print("saved again")
 
+    try:
+        unet.save_pretrained("./saved")
+    except Exception as e:
+        print(f"Couldn't save in server because {e}")
+
 except Exception as e:
     print(f"There was an error during saving the model: {e}")
     # Save the model using torch.save()
