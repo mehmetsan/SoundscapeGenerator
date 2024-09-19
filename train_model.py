@@ -3,7 +3,7 @@ import os
 import torch
 import wandb
 import torch.nn as nn
-from env_variables import model_cache_path, model_save_path
+from env_variables import model_save_path
 from utils.riffusion_pipeline import RiffusionPipeline
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
@@ -72,7 +72,6 @@ dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn
 
 # Load the RiffusionPipeline
 pipeline = RiffusionPipeline.from_pretrained(pretrained_model_name_or_path="riffusion/riffusion-model-v1",
-                                             cache_dir=model_cache_path,
                                              resume_download=True)
 unet = pipeline.unet
 unet.to(device)  # Move the model to GPU
