@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 
 """
     A script that combines the generated spectrograms and their 
@@ -10,36 +11,44 @@ import pandas as pd
 
 
 def assign_emotions(valence_score, arousal_score):
-    if valence_score == 0:
-        return ''
+    # Calculate the angle in radians between the positive x-axis and the point (x, y)
+    angle = np.arctan2(arousal_score, valence_score)
 
-    slope = arousal_score / valence_score
-    if valence_score > 0:
-        if slope > 0.66:
-            return 'excited'
-        elif slope > 0.33:
-            return 'delighted'
-        elif slope > 0:
-            return 'happy'
-        elif slope > -0.33:
-            return 'content'
-        elif slope > -0.66:
-            return 'relaxed'
-        else:
-            return 'calm'
-    else:
-        if slope > 0.66:
-            return 'tired'
-        elif slope > 0.33:
-            return 'bored'
-        elif slope > 0:
-            return 'depressed'
-        elif slope > -0.33:
-            return 'frustrated'
-        elif slope > -0.66:
-            return 'angry'
-        else:
-            return 'tense'
+    # Normalize the angle to be between 0 and 2*pi
+    if angle < 0:
+        angle += 2 * np.pi
+
+    # First Quadrant: 0 to pi/2
+    if 0 <= angle <= np.pi / 6:
+        return 'happy'
+    elif np.pi / 6 < angle <= np.pi / 3:
+        return 'delighted'
+    elif np.pi / 3 < angle <= np.pi / 2:
+        return 'excited'
+
+    # Second Quadrant: pi/2 to pi
+    elif np.pi / 2 < angle <= 2 * np.pi / 3:
+        return 'tense'
+    elif 2 * np.pi / 3 < angle <= 5 * np.pi / 6:
+        return 'angry'
+    elif 5 * np.pi / 6 < angle <= np.pi:
+        return 'frustrated'
+
+    # Third Quadrant: pi to 3pi/2
+    elif np.pi < angle <= 7 * np.pi / 6:
+        return 'depressed'
+    elif 7 * np.pi / 6 < angle <= 4 * np.pi / 3:
+        return 'bored'
+    elif 4 * np.pi / 3 < angle <= 3 * np.pi / 2:
+        return 'tired'
+
+    # Fourth Quadrant: 3pi/2 to 2pi
+    elif 3 * np.pi / 2 < angle <= 5 * np.pi / 3:
+        return 'calm'
+    elif 5 * np.pi / 3 < angle <= 11 * np.pi / 6:
+        return 'relaxed'
+    elif 11 * np.pi / 6 < angle <= 2 * np.pi:
+        return 'content'
 
 
 song_level_annotations_path = './deam_data/annotations/annotations averaged per song/song_level/'
